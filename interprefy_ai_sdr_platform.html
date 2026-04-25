@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interprefy — AI SDR Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f12;
+  --bg2: #141720;
+  --bg3: #1c2030;
+  --bg4: #242840;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f2f8;
+  --text2: #8b91a8;
+  --text3: #555c78;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.1);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.1);
+  --teal: #2dd4bf;
+  --teal-bg: rgba(45,212,191,0.1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; min-height: 100vh; display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px; flex-shrink: 0; background: var(--bg2);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh; z-index: 100;
+}
+.sb-brand {
+  padding: 20px 16px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.sb-logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sb-logo svg { width: 14px; height: 14px; }
+.sb-brand-name { font-size: 13px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
+.sb-brand-sub { font-size: 10px; color: var(--text3); margin-top: 1px; font-family: 'DM Mono', monospace; }
+.sb-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+.sb-section { font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); padding: 12px 8px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: 8px; cursor: pointer; font-size: 12.5px; color: var(--text2);
+  margin-bottom: 2px; transition: all .15s; border: 1px solid transparent; user-select: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+.nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; font-size: 9px; padding: 1px 6px; border-radius: 20px; background: var(--accent); color: white; font-weight: 500; }
+.sb-integrations { padding: 12px 16px; border-top: 1px solid var(--border); }
+.int-title { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: 8px; font-weight: 500; }
+.int-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 11px; color: var(--text2); }
+.int-status { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+.dot-live { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* MAIN */
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; border-bottom: 1px solid var(--border);
+  background: var(--bg); position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { display: flex; flex-direction: column; gap: 2px; }
+.page-title { font-size: 16px; font-weight: 500; color: var(--text); letter-spacing: -0.02em; }
+.page-sub { font-size: 11px; color: var(--text3); }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+.btn {
+  font-size: 12px; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 400; border: 1px solid var(--border2);
+  background: var(--bg3); color: var(--text2); transition: all .15s;
+}
+.btn:hover { background: var(--bg4); color: var(--text); }
+.btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-primary:hover { background: #2563eb; border-color: #2563eb; color: white; }
+.btn-green { background: var(--green-bg); color: var(--green); border-color: rgba(34,197,94,0.2); }
+.btn-green:hover { background: rgba(34,197,94,0.2); color: var(--green); }
+
+.content { flex: 1; padding: 24px; overflow-y: auto; }
+.screen { display: none; animation: fadeIn .2s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.mc { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.mc-val { font-size: 24px; font-weight: 300; color: var(--text); letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; font-family: 'DM Mono', monospace; }
+.mc-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+.mc-delta { font-size: 10px; margin-top: 4px; }
+.up { color: var(--green); } .dn { color: var(--red); } .neu { color: var(--text3); }
+
+/* CARDS */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.card-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
+.card-actions { display: flex; gap: 6px; }
+
+/* TABLE */
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
+.tbl th { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 500; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .06em; }
+.tbl td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--bg3); }
+.tbl td.bold { color: var(--text); font-weight: 400; }
+
+/* AVATAR */
+.av { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; flex-shrink: 0; }
+.nc { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.nc span { overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+
+/* PILLS */
+.pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; display: inline-block; white-space: nowrap; }
+.p-green { background: var(--green-bg); color: var(--green); }
+.p-red { background: var(--red-bg); color: var(--red); }
+.p-amber { background: var(--amber-bg); color: var(--amber); }
+.p-blue { background: rgba(59,130,246,.15); color: var(--accent2); }
+.p-purple { background: var(--purple-bg); color: var(--purple); }
+.p-teal { background: var(--teal-bg); color: var(--teal); }
+.p-gray { background: var(--bg4); color: var(--text2); }
+
+/* ICP BUILDER */
+.icp-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px 14px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; line-height: 1.6;
+  resize: none; margin-bottom: 16px; outline: none; transition: border-color .2s;
+}
+.icp-input:focus { border-color: var(--accent); }
+.filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.filter-group { }
+.filter-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--text3); margin-bottom: 8px; font-weight: 500; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border2); background: var(--bg3); color: var(--text2);
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.tag:hover { border-color: var(--accent); color: var(--accent2); }
+.tag.sel { background: rgba(59,130,246,.15); color: var(--accent2); border-color: rgba(59,130,246,.4); }
+.search-preview { background: var(--bg3); border-radius: 10px; padding: 12px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+.preview-chip { font-size: 11px; padding: 4px 10px; background: var(--bg4); border-radius: 20px; color: var(--text2); border: 1px solid var(--border); }
+.icp-result-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--teal-bg); border: 1px solid rgba(45,212,191,.2); border-radius: 10px; margin-bottom: 16px; }
+.icp-result-num { font-size: 20px; font-weight: 300; color: var(--teal); font-family: 'DM Mono', monospace; }
+.icp-result-label { font-size: 11px; color: var(--teal); opacity: .7; }
+
+/* PIPELINE */
+.pipeline-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+.ps { flex: 1; text-align: center; font-size: 11px; padding: 6px 4px; border-radius: 8px; color: var(--text3); background: var(--bg3); transition: all .3s; }
+.ps.done { background: var(--green-bg); color: var(--green); }
+.ps.run { background: rgba(59,130,246,.15); color: var(--accent2); font-weight: 500; }
+.pa { color: var(--text3); font-size: 12px; flex-shrink: 0; }
+.prog-wrap { height: 3px; background: var(--bg4); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .6s ease; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.email-card { background: var(--bg3); border-radius: 10px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); }
+.email-meta { font-size: 10px; color: var(--text3); margin-bottom: 7px; }
+.email-meta span { color: var(--text2); }
+.email-body { font-size: 12px; line-height: 1.65; color: var(--text2); white-space: pre-wrap; }
+.log-row { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 11px; align-items: baseline; }
+.log-row:last-child { border-bottom: none; }
+.log-t { color: var(--text3); min-width: 54px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+.log-m { color: var(--text2); }
+.spin { display: inline-block; width: 8px; height: 8px; border: 1.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ANALYTICS CHARTS */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding-top: 8px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar-fill { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); min-height: 2px; opacity: .8; transition: height .5s ease; }
+.bar-fill:hover { opacity: 1; }
+.bar-lbl { font-size: 9px; color: var(--text3); }
+.bar-val { font-size: 9px; color: var(--text2); }
+.funnel { display: flex; flex-direction: column; gap: 6px; }
+.funnel-row { display: flex; align-items: center; gap: 10px; }
+.funnel-label { font-size: 11px; color: var(--text2); min-width: 110px; }
+.funnel-bar-wrap { flex: 1; height: 16px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.funnel-fill { height: 100%; border-radius: 4px; background: var(--accent); opacity: .7; }
+.funnel-fill.green { background: var(--green); opacity: .8; }
+.funnel-val { font-size: 11px; color: var(--text); font-family: 'DM Mono', monospace; min-width: 20px; text-align: right; }
+
+/* VAPI */
+.vapi-hero { background: var(--teal-bg); border: 1px solid rgba(45,212,191,.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.vapi-hero-title { font-size: 13px; font-weight: 500; color: var(--teal); margin-bottom: 6px; }
+.vapi-hero-body { font-size: 12px; color: rgba(45,212,191,.7); line-height: 1.6; }
+.script-box { background: var(--bg3); border-radius: 10px; padding: 14px; font-size: 12px; line-height: 1.7; color: var(--text2); border: 1px solid var(--border); }
+.script-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--text3); margin-bottom: 4px; font-weight: 500; }
+.script-section { margin-bottom: 10px; }
+.script-section:last-child { margin-bottom: 0; }
+
+/* DNC SECTION */
+.dnc-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+.dnc-card { border-radius: 12px; padding: 14px 16px; border: 1px solid; }
+.dnc-green { background: var(--green-bg); border-color: rgba(34,197,94,.2); }
+.dnc-red { background: var(--red-bg); border-color: rgba(239,68,68,.2); }
+.dnc-amber { background: var(--amber-bg); border-color: rgba(245,158,11,.2); }
+.dnc-val { font-size: 28px; font-weight: 300; font-family: 'DM Mono', monospace; }
+.dnc-green .dnc-val { color: var(--green); }
+.dnc-red .dnc-val { color: var(--red); }
+.dnc-amber .dnc-val { color: var(--amber); }
+.dnc-label { font-size: 11px; margin-top: 2px; }
+.dnc-green .dnc-label { color: rgba(34,197,94,.7); }
+.dnc-red .dnc-label { color: rgba(239,68,68,.7); }
+.dnc-amber .dnc-label { color: rgba(245,158,11,.7); }
+
+/* SETTINGS */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { margin-bottom: 14px; }
+.field-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.field-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 8px 12px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 12.5px; outline: none;
+  transition: border-color .2s;
+}
+.field-input:focus { border-color: var(--accent); }
+textarea.field-input { resize: vertical; line-height: 1.6; }
+.int-card { background: var(--bg3); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); }
+.int-card-left { display: flex; flex-direction: column; gap: 2px; }
+.int-card-name { font-size: 12.5px; color: var(--text); }
+.int-card-detail { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+/* FLOW DIAGRAM */
+.flow-diagram { display: flex; flex-direction: column; gap: 0; margin-bottom: 16px; }
+.flow-step { display: flex; gap: 0; }
+.flow-line { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+.flow-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; z-index: 1; flex-shrink: 0; }
+.fn-live { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+.fn-need { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
+.flow-connector { flex: 1; width: 1px; background: var(--border); margin: 3px 0; }
+.flow-card { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; margin-left: 8px; }
+.flow-card.live { border-color: rgba(34,197,94,.2); }
+.flow-card.need { border-color: rgba(245,158,11,.2); }
+.flow-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.flow-card-desc { font-size: 11px; color: var(--text3); line-height: 1.5; }
+.flow-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.ftag { font-size: 10px; padding: 1px 7px; border-radius: 20px; }
+.ft-apollo { background: rgba(59,130,246,.12); color: var(--accent2); }
+.ft-claude { background: var(--purple-bg); color: var(--purple); }
+.ft-hs { background: var(--amber-bg); color: var(--amber); }
+.ft-vapi { background: var(--teal-bg); color: var(--teal); }
+.ft-ready { background: var(--green-bg); color: var(--green); }
+.ft-need { background: var(--bg4); color: var(--text3); }
+.flow-status { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; flex-shrink: 0; align-self: flex-start; }
+.fs-live { background: var(--green-bg); color: var(--green); }
+.fs-need { background: var(--amber-bg); color: var(--amber); }
+.flow-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+
+@media (max-width: 900px) {
+  .sidebar { width: 60px; }
+  .sb-brand-name, .sb-brand-sub, .sb-section, .nav-item span, .sb-integrations .int-title, .sb-integrations .int-row, .nav-badge { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .main { margin-left: 60px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="white" stroke-width="1.5"/><path d="M5 7h4M7 5v4" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <div class="sb-brand-name">Interprefy SDR</div>
+      <div class="sb-brand-sub">outbound OS</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Prospecting</div>
+    <div class="nav-item active" onclick="show('overview')" id="nav-overview">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1.5" width="4.5" height="4.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1.5" y="8" width="4.5" height="4.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="8" width="4.5" height="4.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      <span>Overview</span>
+    </div>
+    <div class="nav-item" onclick="show('icp')" id="nav-icp">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M7 1.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>ICP builder</span>
+    </div>
+    <div class="nav-item" onclick="show('leads')" id="nav-leads">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 12c0-2 1.6-3.5 3.5-3.5s3.5 1.5 3.5 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 6l3 3M11 6a2 2 0 1 0-4 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>Lead search</span>
+      <span class="nav-badge">9</span>
+    </div>
+    <div class="nav-item" onclick="show('dnc')" id="nav-dnc">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>DNC check</span>
+    </div>
+    <div class="sb-section">Outreach</div>
+    <div class="nav-item" onclick="show('pipeline')" id="nav-pipeline">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>Pipeline runner</span>
+    </div>
+    <div class="nav-item" onclick="show('vapi')" id="nav-vapi">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M3 3c0 4.4 3.6 8 8 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="3" cy="3" r="1.5" stroke="currentColor" stroke-width="1.1"/><circle cx="11" cy="11" r="1.5" stroke="currentColor" stroke-width="1.1"/></svg>
+      <span>VAPI handoff</span>
+    </div>
+    <div class="sb-section">Reporting</div>
+    <div class="nav-item" onclick="show('analytics')" id="nav-analytics">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="8" width="2.5" height="4" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="5.75" y="5" width="2.5" height="7" rx="1" stroke="currentColor" stroke-width="1.1"/><rect x="9.5" y="2" width="2.5" height="10" rx="1" stroke="currentColor" stroke-width="1.1"/></svg>
+      <span>Analytics</span>
+    </div>
+    <div class="sb-section">Config</div>
+    <div class="nav-item" onclick="show('settings')" id="nav-settings">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 1.5v1M7 11.5v1M1.5 7h1M11.5 7h1M3.2 3.2l.7.7M10.1 10.1l.7.7M10.8 3.2l-.7.7M3.9 10.1l-.7.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>Settings</span>
+    </div>
+  </nav>
+  <div class="sb-integrations">
+    <div class="int-title">Integrations</div>
+    <div class="int-row"><span>Apollo</span><div class="int-status"><div class="dot-live"></div><span style="color:var(--green);font-size:10px">Live</span></div></div>
+    <div class="int-row"><span>HubSpot</span><div class="int-status"><div class="dot-live"></div><span style="color:var(--green);font-size:10px">Live</span></div></div>
+    <div class="int-row"><span>Outlook</span><div class="int-status"><div class="dot-live"></div><span style="color:var(--green);font-size:10px">Live</span></div></div>
+    <div class="int-row"><span>VAPI</span><div class="int-status"><div class="dot-live"></div><span style="color:var(--green);font-size:10px">Live</span></div></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="page-title">Overview</div>
+      <div class="page-sub" id="page-sub">Interprefy AI outbound — full pipeline status</div>
+    </div>
+    <div class="topbar-right" id="topbar-actions">
+      <button class="btn">Export report</button>
+      <button class="btn btn-primary">Run pipeline ↗</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="screen active" id="screen-overview">
+      <div class="metrics">
+        <div class="mc"><div class="mc-val">12,700</div><div class="mc-label">Apollo matches</div><div class="mc-delta neu">corporate events ICP</div></div>
+        <div class="mc"><div class="mc-val">9</div><div class="mc-label">Cleared leads</div><div class="mc-delta up">DNC checked ✓</div></div>
+        <div class="mc"><div class="mc-val">27</div><div class="mc-label">Emails queued</div><div class="mc-delta neu">3-step sequence</div></div>
+        <div class="mc"><div class="mc-val">3</div><div class="mc-label">VAPI calls ready</div><div class="mc-delta up">after sequence</div></div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">1</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">You describe your ICP</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Plain language to Claude — industry, title, company size, geography. Claude builds the Apollo search filters automatically.</div>
+            <div class="flow-tags"><span class="ftag ft-claude">Claude AI</span><span class="ftag ft-ready">Natural language input</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">2</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">Apollo list build + enrichment</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Apollo returns verified contacts with email, title, company, phone. 12,700 matches found for corporate events ICP.</div>
+            <div class="flow-tags"><span class="ftag ft-apollo">Apollo MCP</span><span class="ftag ft-ready">Verified email</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">3</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">DNC check against HubSpot</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Every contact checked against HubSpot for existing records and recent activity. 4 blocked (Visa, Inetum), 2 flagged for review (New York Life), 9 cleared.</div>
+            <div class="flow-tags"><span class="ftag ft-hs">HubSpot</span><span class="ftag ft-ready">Real-time check</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">4</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">Claude writes 3-email sequence</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Day 1 cold intro, Day 4 value add, Day 8 soft breakup. Each email personalized by title, company, and industry using Claude AI.</div>
+            <div class="flow-tags"><span class="ftag ft-claude">Claude AI</span><span class="ftag ft-apollo">Apollo sequence</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">5</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">Apollo sends via Outlook</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Apollo enrolls contacts in the sequence and sends through your connected Outlook account on scheduled cadence. Open + reply tracking included.</div>
+            <div class="flow-tags"><span class="ftag ft-apollo">Apollo sequences</span><span class="ftag ft-ready">Outlook connected</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">6</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">HubSpot contact + deal created</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Contact, company, and deal created in HubSpot pipeline. Each email step logged as activity. Deal stage updated throughout the sequence.</div>
+            <div class="flow-tags"><span class="ftag ft-hs">Contact</span><span class="ftag ft-hs">Company</span><span class="ftag ft-hs">Deal</span><span class="ftag ft-hs">Activity</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">7</div><div class="flow-connector"></div></div>
+          <div class="flow-card live">
+            <div class="flow-top"><span class="flow-card-title">VAPI handoff after sequence</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">After 3 emails, Claude generates a call script and fires a webhook to VAPI with full lead context. AI caller queued automatically.</div>
+            <div class="flow-tags"><span class="ftag ft-vapi">VAPI webhook</span><span class="ftag ft-claude">Claude call script</span><span class="ftag ft-hs">HubSpot task</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-num fn-live">8</div></div>
+          <div class="flow-card live" style="margin-bottom:0">
+            <div class="flow-top"><span class="flow-card-title">Reporting + metrics</span><span class="flow-status fs-live">Live</span></div>
+            <div class="flow-card-desc">Live dashboard: leads sourced, open/reply rates from Apollo, calls made, meetings booked, HubSpot pipeline value.</div>
+            <div class="flow-tags"><span class="ftag ft-hs">HubSpot data</span><span class="ftag ft-apollo">Apollo analytics</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ICP BUILDER -->
+    <div class="screen" id="screen-icp">
+      <div class="icp-result-bar">
+        <div><div class="icp-result-num">12,700</div><div class="icp-result-label">estimated Apollo matches</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn">Save ICP</button>
+          <button class="btn btn-primary">Search Apollo ↗</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">ICP description</span></div>
+        <textarea class="icp-input" rows="3">Corporate events leaders at large financial services, tech, and enterprise companies — 1,000+ employees, US, UK, EU and APAC. Focus on VP / Director / Head of Corporate Events roles. Exclude education and non-profits.</textarea>
+        <div class="filter-grid">
+          <div class="filter-group">
+            <div class="filter-label">Industries</div>
+            <div class="tag-row">
+              <span class="tag sel" onclick="this.classList.toggle('sel')">Financial services</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">Enterprise tech</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">Insurance</span>
+              <span class="tag" onclick="this.classList.toggle('sel')">Healthcare</span>
+              <span class="tag" onclick="this.classList.toggle('sel')">Consulting</span>
+              <span class="tag" onclick="this.classList.toggle('sel')">Pharma</span>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Seniority</div>
+            <div class="tag-row">
+              <span class="tag sel" onclick="this.classList.toggle('sel')">VP</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">Director</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">Head of</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">MD</span>
+              <span class="tag" onclick="this.classList.toggle('sel')">Manager</span>
+              <span class="tag" onclick="this.classList.toggle('sel')">C-Suite</span>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Company size</div>
+            <div class="tag-row">
+              <span class="tag" onclick="this.classList.toggle('sel')">50–200</span>
+              <span class="tag" onclick="this.classList.toggle('sel')">200–1k</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">1k–5k</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">5k–20k</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">20k+</span>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Geography</div>
+            <div class="tag-row">
+              <span class="tag sel" onclick="this.classList.toggle('sel')">United States</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">United Kingdom</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">Europe</span>
+              <span class="tag sel" onclick="this.classList.toggle('sel')">APAC</span>
+            </div>
+          </div>
+        </div>
+        <div class="filter-label" style="margin-bottom:8px">Apollo search preview</div>
+        <div class="search-preview">
+          <span class="preview-chip">Titles: Head of Events, Director Corp Events, VP Corporate Events +8</span>
+          <span class="preview-chip">Employees: 1,000 – 100,000</span>
+          <span class="preview-chip">Email: verified only</span>
+          <span class="preview-chip">Locations: US, UK, EU, APAC</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Saved ICPs</span><button class="btn" style="font-size:11px;padding:5px 10px">+ New ICP</button></div>
+        <table class="tbl">
+          <thead><tr><th style="width:160px">Name</th><th style="width:100px">Last run</th><th style="width:100px">Matches</th><th style="width:90px">Status</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Corporate events — FS</td><td>Today</td><td class="bold">12,700</td><td><span class="pill p-blue">Active</span></td></tr>
+            <tr><td class="bold">Global associations</td><td>Apr 18</td><td class="bold">117,374</td><td><span class="pill p-gray">Paused</span></td></tr>
+            <tr><td class="bold">APAC enterprise</td><td>Apr 10</td><td class="bold">4,200</td><td><span class="pill p-gray">Draft</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LEAD SEARCH -->
+    <div class="screen" id="screen-leads">
+      <div class="metrics">
+        <div class="mc"><div class="mc-val">12,700</div><div class="mc-label">Total matches</div></div>
+        <div class="mc"><div class="mc-val" style="color:var(--green)">9</div><div class="mc-label">DNC cleared</div></div>
+        <div class="mc"><div class="mc-val" style="color:var(--red)">4</div><div class="mc-label">Blocked</div></div>
+        <div class="mc"><div class="mc-val" style="color:var(--amber)">2</div><div class="mc-label">Review needed</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Apollo results — corporate events</span>
+          <div class="card-actions">
+            <button class="btn" style="font-size:11px;padding:5px 10px">Filter</button>
+            <button class="btn btn-primary" style="font-size:11px;padding:5px 10px">Enrich + enroll ↗</button>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead><tr><th style="width:150px">Contact</th><th style="width:190px">Title</th><th style="width:160px">Company</th><th style="width:65px">Email</th><th style="width:65px">DNC</th><th style="width:60px">Fit</th></tr></thead>
+          <tbody>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">AK</div><span>Alyse K.</span></div></td><td>MD, Head of Corporate Events</td><td>Cantor Fitzgerald</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-green">Clear</span></td><td><span class="pill p-green">High</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(34,197,94,.15);color:#22c55e">JC</div><span>Joe C.</span></div></td><td>SVP, Director Corp Events</td><td>Fifth Third Bank</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-green">Clear</span></td><td><span class="pill p-green">High</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(245,158,11,.15);color:#f59e0b">KW</div><span>Kate W.</span></div></td><td>AVP, Corporate Events Mgr</td><td>Merrill Lynch</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-green">Clear</span></td><td><span class="pill p-green">High</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(167,139,250,.15);color:#a78bfa">NC</div><span>Nina C.</span></div></td><td>VP, Director of Corporate Events</td><td>Citizens Bank</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-green">Clear</span></td><td><span class="pill p-green">High</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(45,212,191,.15);color:#2dd4bf">CB</div><span>Christy B.</span></div></td><td>VP, Corporate Events Program Mgr</td><td>Regions Bank</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-green">Clear</span></td><td><span class="pill p-amber">Med</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(239,68,68,.15);color:#ef4444">SH</div><span>Sophie H.</span></div></td><td>Sr. Dir, Head Corp Events CEMEA</td><td>Visa</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-red">Blocked</span></td><td><span class="pill p-green">High</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(245,158,11,.15);color:#f59e0b">DB</div><span>Debra B.</span></div></td><td>Corp VP, Head of Event Operations</td><td>New York Life</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-amber">Review</span></td><td><span class="pill p-green">High</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">LS</div><span>Lianne S.</span></div></td><td>AVP, Corporate Events Manager</td><td>Huntington Nat'l Bank</td><td style="color:var(--green);font-size:11px">Verified</td><td><span class="pill p-green">Clear</span></td><td><span class="pill p-amber">Med</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DNC -->
+    <div class="screen" id="screen-dnc">
+      <div class="dnc-summary">
+        <div class="dnc-card dnc-green"><div class="dnc-val">9</div><div class="dnc-label">Cleared — safe to enroll</div></div>
+        <div class="dnc-card dnc-red"><div class="dnc-val">4</div><div class="dnc-label">Blocked — active in HubSpot</div></div>
+        <div class="dnc-card dnc-amber"><div class="dnc-val">2</div><div class="dnc-label">Review — same company, diff contact</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Cleared — ready for sequence</span></div>
+        <table class="tbl">
+          <thead><tr><th style="width:140px">Contact</th><th style="width:180px">Title</th><th style="width:140px">Company</th><th style="width:80px">Status</th></tr></thead>
+          <tbody>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">AK</div><span>Alyse K.</span></div></td><td>MD, Head of Corporate Events</td><td>Cantor Fitzgerald</td><td><span class="pill p-green">Cleared</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(34,197,94,.15);color:#22c55e">JC</div><span>Joe C.</span></div></td><td>SVP, Director Corp Events</td><td>Fifth Third Bank</td><td><span class="pill p-green">Cleared</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(245,158,11,.15);color:#f59e0b">KW</div><span>Kate W.</span></div></td><td>AVP, Corporate Events Mgr</td><td>Merrill Lynch</td><td><span class="pill p-green">Cleared</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(167,139,250,.15);color:#a78bfa">NC</div><span>Nina C.</span></div></td><td>VP, Director Corp Events</td><td>Citizens Bank</td><td><span class="pill p-green">Cleared</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(45,212,191,.15);color:#2dd4bf">CB</div><span>Christy B.</span></div></td><td>VP, Corp Events Program Mgr</td><td>Regions Bank</td><td><span class="pill p-green">Cleared</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Blocked — Visa & Inetum active in HubSpot, contacted within 90 days</span></div>
+        <table class="tbl">
+          <thead><tr><th style="width:140px">Contact</th><th style="width:100px">Company</th><th style="width:120px">Last contacted</th><th style="width:100px">HubSpot stage</th><th style="width:80px">Status</th></tr></thead>
+          <tbody>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(239,68,68,.15);color:#ef4444">SH</div><span>Sophie H.</span></div></td><td>Visa</td><td style="color:var(--text3)">Already in HubSpot</td><td style="color:var(--text3);font-size:11px">Active stage</td><td><span class="pill p-red">Blocked</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(239,68,68,.15);color:#ef4444">LR</div><span>Lauren R.</span></div></td><td>Visa</td><td style="color:var(--text3)">Apr 14 2026</td><td style="color:var(--text3);font-size:11px">Lead · replied</td><td><span class="pill p-red">Blocked</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(239,68,68,.15);color:#ef4444">JL</div><span>Joy L.</span></div></td><td>Visa</td><td style="color:var(--text3)">Mar 23 2026</td><td style="color:var(--text3);font-size:11px">Lead</td><td><span class="pill p-red">Blocked</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(239,68,68,.15);color:#ef4444">CM</div><span>Cheryn M.</span></div></td><td>Inetum</td><td style="color:var(--text3)">Mar 24 2026</td><td style="color:var(--text3);font-size:11px">Opportunity</td><td><span class="pill p-red">Blocked</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Review — New York Life in pipeline (different contacts)</span></div>
+        <table class="tbl">
+          <thead><tr><th style="width:140px">Apollo lead</th><th style="width:100px">Company</th><th style="width:160px">Existing HubSpot contact</th><th style="width:100px">Stage</th><th style="width:80px">Status</th></tr></thead>
+          <tbody>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(245,158,11,.15);color:#f59e0b">DB</div><span>Debra B.</span></div></td><td>New York Life</td><td style="color:var(--text2)">Shiny Qin (Apr 24)</td><td style="color:var(--text3);font-size:11px">Opportunity</td><td><span class="pill p-amber">Review</span></td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(245,158,11,.15);color:#f59e0b">NK</div><span>Neha K.</span></div></td><td>New York Life</td><td style="color:var(--text2)">Shiny Qin (Apr 24)</td><td style="color:var(--text3);font-size:11px">Opportunity</td><td><span class="pill p-amber">Review</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="screen" id="screen-pipeline">
+      <div class="pipeline-bar">
+        <div class="ps done">Apollo enrich</div><div class="pa">›</div>
+        <div class="ps done">DNC check</div><div class="pa">›</div>
+        <div class="ps run">AI draft</div><div class="pa">›</div>
+        <div class="ps">Outlook send</div><div class="pa">›</div>
+        <div class="ps">HubSpot log</div><div class="pa">›</div>
+        <div class="ps">VAPI queue</div>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:38%"></div></div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
+        <button class="btn btn-primary" onclick="runDemo()">Run pipeline ↗</button>
+        <button class="btn" id="pause-btn" onclick="togglePause()">Pause</button>
+        <button class="btn" onclick="resetDemo()">Reset</button>
+        <div style="margin-left:auto;font-size:11px;color:var(--text3)">Speed: <select id="speed-sel" style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);padding:3px 6px;font-size:11px;font-family:'DM Sans',sans-serif"><option value="2000">Normal</option><option value="800">Fast</option><option value="150">Demo</option></select></div>
+        <span id="run-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text3);border:1px solid var(--border)">Idle</span>
+      </div>
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hdr"><span class="card-title">Live queue</span><span id="q-count" style="font-size:11px;color:var(--text3)">9 leads</span></div>
+          <table class="tbl">
+            <thead><tr><th style="width:110px">Contact</th><th style="width:100px">Company</th><th style="width:90px">Status</th></tr></thead>
+            <tbody id="queue-tbody">
+              <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">AK</div><span>Alyse K.</span></div></td><td>Cantor Fitz.</td><td><span class="pill p-gray" id="st-0">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(34,197,94,.15);color:#22c55e">JC</div><span>Joe C.</span></div></td><td>Fifth Third</td><td><span class="pill p-gray" id="st-1">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(245,158,11,.15);color:#f59e0b">KW</div><span>Kate W.</span></div></td><td>Merrill Lynch</td><td><span class="pill p-gray" id="st-2">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(167,139,250,.15);color:#a78bfa">NC</div><span>Nina C.</span></div></td><td>Citizens Bank</td><td><span class="pill p-gray" id="st-3">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(45,212,191,.15);color:#2dd4bf">CB</div><span>Christy B.</span></div></td><td>Regions Bank</td><td><span class="pill p-gray" id="st-4">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">LS</div><span>Lianne S.</span></div></td><td>Huntington</td><td><span class="pill p-gray" id="st-5">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(167,139,250,.15);color:#a78bfa">AR</div><span>Andrea R.</span></div></td><td>Provident</td><td><span class="pill p-gray" id="st-6">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(239,68,68,.15);color:#ef4444">JD</div><span>Jennifer D.</span></div></td><td>World Insurance</td><td><span class="pill p-gray" id="st-7">Queued</span></td></tr>
+              <tr><td><div class="nc"><div class="av" style="background:rgba(34,197,94,.15);color:#22c55e">BE</div><span>Bryan E.</span></div></td><td>Huntington</td><td><span class="pill p-gray" id="st-8">Queued</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card" style="margin-bottom:0;flex:1">
+            <div class="card-hdr"><span class="card-title">Email preview</span><span id="email-count" style="font-size:11px;color:var(--text3)"></span></div>
+            <div id="email-prev-wrap"><div style="color:var(--text3);font-size:12px;padding:8px 0">Emails appear here as Claude drafts them...</div></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-hdr"><span class="card-title">Activity log</span></div>
+            <div id="log-wrap"><div style="color:var(--text3);font-size:12px;padding:4px 0">No activity yet</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="screen" id="screen-analytics">
+      <div class="metrics">
+        <div class="mc"><div class="mc-val">9</div><div class="mc-label">Leads enrolled</div><div class="mc-delta up">corporate events</div></div>
+        <div class="mc"><div class="mc-val">27</div><div class="mc-label">Emails sent</div><div class="mc-delta up">3-step sequences</div></div>
+        <div class="mc"><div class="mc-val">24%</div><div class="mc-label">Open rate</div><div class="mc-delta up">vs 18% avg</div></div>
+        <div class="mc"><div class="mc-val">1</div><div class="mc-label">Meeting booked</div><div class="mc-delta up">Cantor Fitzgerald</div></div>
+      </div>
+      <div class="two-col" style="margin-bottom:16px">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hdr"><span class="card-title">Sends by day</span></div>
+          <div class="bar-chart">
+            <div class="bar-col"><div class="bar-val">2</div><div class="bar-fill" style="height:20px"></div><div class="bar-lbl">Mon</div></div>
+            <div class="bar-col"><div class="bar-val">4</div><div class="bar-fill" style="height:40px"></div><div class="bar-lbl">Tue</div></div>
+            <div class="bar-col"><div class="bar-val">3</div><div class="bar-fill" style="height:30px"></div><div class="bar-lbl">Wed</div></div>
+            <div class="bar-col"><div class="bar-val">6</div><div class="bar-fill" style="height:60px"></div><div class="bar-lbl">Thu</div></div>
+            <div class="bar-col"><div class="bar-val">5</div><div class="bar-fill" style="height:50px"></div><div class="bar-lbl">Fri</div></div>
+            <div class="bar-col"><div class="bar-val">7</div><div class="bar-fill" style="height:70px;opacity:1"></div><div class="bar-lbl">Today</div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-hdr"><span class="card-title">Sequence funnel</span></div>
+          <div class="funnel">
+            <div class="funnel-row"><span class="funnel-label">Enrolled</span><div class="funnel-bar-wrap"><div class="funnel-fill" style="width:100%"></div></div><span class="funnel-val">9</span></div>
+            <div class="funnel-row"><span class="funnel-label">Email 1 sent</span><div class="funnel-bar-wrap"><div class="funnel-fill" style="width:100%"></div></div><span class="funnel-val">9</span></div>
+            <div class="funnel-row"><span class="funnel-label">Opened</span><div class="funnel-bar-wrap"><div class="funnel-fill" style="width:78%"></div></div><span class="funnel-val">7</span></div>
+            <div class="funnel-row"><span class="funnel-label">Replied</span><div class="funnel-bar-wrap"><div class="funnel-fill" style="width:33%"></div></div><span class="funnel-val">3</span></div>
+            <div class="funnel-row"><span class="funnel-label">VAPI queued</span><div class="funnel-bar-wrap"><div class="funnel-fill" style="width:22%"></div></div><span class="funnel-val">2</span></div>
+            <div class="funnel-row"><span class="funnel-label">Meeting booked</span><div class="funnel-bar-wrap"><div class="funnel-fill green" style="width:11%"></div></div><span class="funnel-val">1</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">HubSpot pipeline</span><button class="btn" style="font-size:11px;padding:5px 10px">View in HubSpot ↗</button></div>
+        <table class="tbl">
+          <thead><tr><th style="width:130px">Contact</th><th style="width:130px">Company</th><th style="width:100px">Deal stage</th><th style="width:100px">Sequence</th><th style="width:90px">VAPI status</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Alyse K.</td><td>Cantor Fitzgerald</td><td><span class="pill p-blue">Meeting booked</span></td><td style="font-size:11px;color:var(--green)">Complete</td><td style="font-size:11px;color:var(--teal)">Called</td></tr>
+            <tr><td class="bold">Joe C.</td><td>Fifth Third Bank</td><td><span class="pill p-blue">Contacted</span></td><td style="font-size:11px;color:var(--green)">Email 2 sent</td><td style="font-size:11px;color:var(--text3)">Pending</td></tr>
+            <tr><td class="bold">Kate W.</td><td>Merrill Lynch</td><td><span class="pill p-gray">New lead</span></td><td style="font-size:11px;color:var(--amber)">Email 1 sent</td><td style="font-size:11px;color:var(--text3)">—</td></tr>
+            <tr><td class="bold">Nina C.</td><td>Citizens Bank</td><td><span class="pill p-gray">New lead</span></td><td style="font-size:11px;color:var(--amber)">Email 1 sent</td><td style="font-size:11px;color:var(--text3)">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VAPI -->
+    <div class="screen" id="screen-vapi">
+      <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+        <div class="mc"><div class="mc-val" style="color:var(--teal)">3</div><div class="mc-label">Call-ready leads</div></div>
+        <div class="mc"><div class="mc-val">1</div><div class="mc-label">Call in progress</div></div>
+        <div class="mc"><div class="mc-val" style="color:var(--green)">1</div><div class="mc-label">Meetings booked</div></div>
+      </div>
+      <div class="vapi-hero">
+        <div class="vapi-hero-title">How the VAPI handoff works</div>
+        <div class="vapi-hero-body">After the 3-email sequence completes without a reply, the platform creates a HubSpot task ("Call ready") and fires a webhook to VAPI containing: contact name, title, company, a summary of the email thread, and a Claude-generated call script. VAPI queues the AI call automatically. When the call completes, the outcome is logged back to HubSpot and the deal stage is updated.</div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Call queue</span><button class="btn btn-green" style="font-size:11px;padding:5px 10px">Trigger VAPI calls ↗</button></div>
+        <table class="tbl">
+          <thead><tr><th style="width:130px">Contact</th><th style="width:130px">Company</th><th style="width:100px">Emails sent</th><th style="width:90px">Status</th><th style="width:90px">Outcome</th></tr></thead>
+          <tbody>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">AK</div><span>Alyse K.</span></div></td><td>Cantor Fitzgerald</td><td style="color:var(--text2)">3 / 3</td><td><span class="pill p-teal">In call</span></td><td style="font-size:11px;color:var(--green)">Meeting booked</td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(34,197,94,.15);color:#22c55e">JC</div><span>Joe C.</span></div></td><td>Fifth Third Bank</td><td style="color:var(--text2)">3 / 3</td><td><span class="pill p-blue">Queued</span></td><td style="font-size:11px;color:var(--text3)">—</td></tr>
+            <tr><td><div class="nc"><div class="av" style="background:rgba(59,130,246,.2);color:#60a5fa">LS</div><span>Lianne S.</span></div></td><td>Huntington Bank</td><td style="color:var(--text2)">3 / 3</td><td><span class="pill p-gray">Pending</span></td><td style="font-size:11px;color:var(--text3)">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">VAPI call script — Alyse K., Cantor Fitzgerald</span></div>
+        <div class="script-box">
+          <div class="script-section"><div class="script-label">Opening</div>"Hi Alyse, this is Joe from Interprefy — I sent you a couple of emails about multilingual event support for Cantor's global programs. Do you have 2 minutes?"</div>
+          <div class="script-section"><div class="script-label">Context (from email thread)</div>Sent 3 emails over 8 days. No reply, but email 1 was opened twice. Subject matter: AI-powered interpretation platform for corporate events.</div>
+          <div class="script-section"><div class="script-label">Key points to cover</div>Interprefy's AI interpretation platform — no hardware, 50+ languages, used by major financial institutions for investor days, global all-hands, and board meetings.</div>
+          <div class="script-section" style="margin-bottom:0"><div class="script-label">Ask</div>Book a 15-minute demo or intro call. Offer to send a 1-pager on how Cantor-sized firms use the platform.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="settings-grid">
+        <div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Email template</span></div>
+            <div class="field"><div class="field-label">Subject line</div><input class="field-input" type="text" value="Quick idea for {{company}}'s global events"></div>
+            <div class="field"><div class="field-label">Claude prompt — use {{name}}, {{title}}, {{company}}, {{industry}}</div><textarea class="field-input" rows="6">Write a short, personalized cold outbound email to {{name}}, who is {{title}} at {{company}} in the {{industry}} industry. Keep it under 100 words. Be direct, reference their company specifically. Mention Interprefy's AI interpretation platform for multilingual corporate events. Sign off as Joe. No markdown.</textarea></div>
+            <div class="field"><div class="field-label">Sequence cadence</div>
+              <div style="display:flex;gap:8px">
+                <input class="field-input" type="text" value="Day 1" style="width:80px">
+                <input class="field-input" type="text" value="Day 4" style="width:80px">
+                <input class="field-input" type="text" value="Day 8" style="width:80px">
+              </div>
+            </div>
+            <button class="btn btn-primary">Save template</button>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Pipeline settings</span></div>
+            <div class="field"><div class="field-label">Sender name</div><input class="field-input" type="text" value="Joe"></div>
+            <div class="field"><div class="field-label">Delay between sends (seconds)</div><input class="field-input" type="text" value="2" style="width:80px"></div>
+            <button class="btn btn-primary">Save settings</button>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Integrations</span></div>
+            <div class="int-card"><div class="int-card-left"><div class="int-card-name">Apollo</div><div class="int-card-detail">apollo.io · MCP connected</div></div><div style="display:flex;align-items:center;gap:6px"><div class="dot-live"></div><span style="font-size:11px;color:var(--green)">Live</span></div></div>
+            <div class="int-card"><div class="int-card-left"><div class="int-card-name">Microsoft Outlook</div><div class="int-card-detail">joseph.flaten@interprefy.com</div></div><div style="display:flex;align-items:center;gap:6px"><div class="dot-live"></div><span style="font-size:11px;color:var(--green)">Live</span></div></div>
+            <div class="int-card"><div class="int-card-left"><div class="int-card-name">HubSpot CRM</div><div class="int-card-detail">Account #6564114 · MCP connected</div></div><div style="display:flex;align-items:center;gap:6px"><div class="dot-live"></div><span style="font-size:11px;color:var(--green)">Live</span></div></div>
+            <div class="int-card"><div class="int-card-left"><div class="int-card-name">VAPI</div><div class="int-card-detail">AI caller · webhook configured</div></div><div style="display:flex;align-items:center;gap:6px"><div class="dot-live"></div><span style="font-size:11px;color:var(--green)">Live</span></div></div>
+            <div class="int-card"><div class="int-card-left"><div class="int-card-name">Claude AI</div><div class="int-card-detail">claude-sonnet-4-20250514</div></div><div style="display:flex;align-items:center;gap:6px"><div class="dot-live"></div><span style="font-size:11px;color:var(--green)">Live</span></div></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">DNC settings</span></div>
+            <div class="field"><div class="field-label">Lookback window (days)</div><input class="field-input" type="text" value="90" style="width:80px"></div>
+            <div class="field" style="margin-bottom:0"><div class="field-label">Block if HubSpot lifecycle stage is</div>
+              <div class="tag-row" style="margin-top:6px">
+                <span class="tag sel">Customer</span>
+                <span class="tag sel">Opportunity</span>
+                <span class="tag sel">Lead (contacted &lt;90d)</span>
+                <span class="tag">Subscriber</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const pages = {
+  overview:  { title: 'Overview', sub: 'Interprefy AI outbound — full pipeline status', actions: '<button class="btn">Export report</button><button class="btn btn-primary">Run pipeline ↗</button>' },
+  icp:       { title: 'ICP builder', sub: 'Define your target profile — Claude builds the Apollo search', actions: '<button class="btn">Save ICP</button><button class="btn btn-primary">Search Apollo ↗</button>' },
+  leads:     { title: 'Lead search', sub: 'Apollo results — 12,700 matches, DNC check ready', actions: '<button class="btn">Export CSV</button><button class="btn btn-primary">Enrich + enroll ↗</button>' },
+  dnc:       { title: 'DNC check', sub: '9 cleared · 4 blocked (Visa, Inetum) · 2 review (New York Life)', actions: '<button class="btn btn-green">Approve 9 cleared leads ↗</button>' },
+  pipeline:  { title: 'Pipeline runner', sub: 'Apollo → AI draft → Outlook → HubSpot → VAPI — auto-runs per lead', actions: '<button class="btn">Pause</button><button class="btn btn-primary">Run all leads ↗</button>' },
+  vapi:      { title: 'VAPI handoff', sub: 'AI caller queue — triggered after 3-email sequence completes', actions: '<button class="btn">View call logs</button><button class="btn btn-green">Trigger VAPI calls ↗</button>' },
+  analytics: { title: 'Analytics', sub: 'Live metrics — Apollo sequences + HubSpot CRM + VAPI outcomes', actions: '<button class="btn btn-primary">Export report ↗</button>' },
+  settings:  { title: 'Settings', sub: 'Email templates, cadence, integrations, DNC rules', actions: '<button class="btn btn-primary">Save all settings</button>' },
+};
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  const ni = document.getElementById('nav-' + id);
+  if (ni) ni.classList.add('active');
+  const p = pages[id];
+  document.getElementById('page-title').textContent = p.title;
+  document.getElementById('page-sub').textContent = p.sub;
+  document.getElementById('topbar-actions').innerHTML = p.actions;
+}
+
+// Pipeline demo
+const LEADS = [
+  { initials: 'AK', name: 'Alyse K.', company: 'Cantor Fitzgerald', email: 'alyse.k@cantorfitzgerald.com', title: 'MD, Head of Corporate Events' },
+  { initials: 'JC', name: 'Joe C.', company: 'Fifth Third Bank', email: 'joe.c@53.com', title: 'SVP, Director Corp Events' },
+  { initials: 'KW', name: 'Kate W.', company: 'Merrill Lynch', email: 'kate.w@ml.com', title: 'AVP, Corporate Events Manager' },
+  { initials: 'NC', name: 'Nina C.', company: 'Citizens Bank', email: 'nina.c@citizens.com', title: 'VP, Director Corp Events' },
+  { initials: 'CB', name: 'Christy B.', company: 'Regions Bank', email: 'christy.b@regions.com', title: 'VP, Corp Events Program Mgr' },
+  { initials: 'LS', name: 'Lianne S.', company: 'Huntington Bank', email: 'lianne.s@huntington.com', title: 'AVP, Corporate Events Manager' },
+  { initials: 'AR', name: 'Andrea R.', company: 'Provident Bank', email: 'andrea.r@provident.com', title: 'VP, Corporate Events Manager' },
+  { initials: 'JD', name: 'Jennifer D.', company: 'World Insurance', email: 'jennifer.d@worldins.com', title: 'Director of Corporate Events' },
+  { initials: 'BE', name: 'Bryan E.', company: 'Huntington Bank', email: 'bryan.e@huntington.com', title: 'AVP, Corp Events & Tradeshows' },
+];
+const EMAIL_BODIES = [
+  (l) => `Hi ${l.name.split(' ')[0]},\n\nI came across ${l.company}'s global events calendar — impressive programs across your regions.\n\nWe help corporate events teams like yours run multilingual meetings and conferences without the complexity of traditional interpretation setups. Companies like Cantor Fitzgerald use Interprefy to cover 10+ languages in a single session.\n\nWorth a 15-min call this week?\n\nBest, Joe`,
+  (l) => `${l.name.split(' ')[0]},\n\nQuick follow-up — as ${l.title} at ${l.company}, I imagine running events across different regions and languages comes up.\n\nInterprefy's AI platform handles real-time interpretation for 50+ languages, no hardware required. We work with several financial institutions for investor days and all-hands.\n\nHappy to share a quick overview if useful.\n\nBest, Joe`,
+];
+let running = false, paused = false, pauseRes = null, logEntries = [], emailPrevs = [];
+const steps = [null,'Apollo enrich','DNC check','AI draft','Outlook send','HubSpot log','VAPI queue'];
+const psCls = ['','done','done','run','','',''];
+function setStatus(idx, cls, label) {
+  const el = document.getElementById('st-' + idx);
+  if (!el) return;
+  el.className = 'pill ' + cls;
+  el.textContent = label;
+}
+function setPStep(active) {
+  document.querySelectorAll('.ps').forEach((el, i) => {
+    el.className = 'ps' + (i < active ? ' done' : i === active ? ' run' : '');
+  });
+}
+function setProgress(pct) { document.querySelector('.prog-fill').style.width = pct + '%'; }
+function setBadge(txt, col) {
+  const el = document.getElementById('run-badge');
+  el.textContent = txt;
+  const cols = { idle: 'background:var(--bg3);color:var(--text3);border-color:var(--border)', running: 'background:rgba(245,158,11,.15);color:var(--amber);border-color:rgba(245,158,11,.3)', paused: 'background:var(--bg3);color:var(--text3);border-color:var(--border)', done: 'background:var(--green-bg);color:var(--green);border-color:rgba(34,197,94,.3)' };
+  el.style.cssText = 'font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid;' + (cols[col] || cols.idle);
+}
+function ts() { return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }); }
+function addLog(icon, msg) {
+  logEntries.unshift({ t: ts(), icon, msg });
+  const el = document.getElementById('log-wrap');
+  el.innerHTML = logEntries.slice(0, 20).map(e => `<div class="log-row"><span class="log-t">${e.t}</span><span class="log-m">${e.icon} ${e.msg}</span></div>`).join('');
+}
+function addEmail(l, idx) {
+  const subject = `Quick idea for ${l.company}'s global events`;
+  const body = EMAIL_BODIES[idx % 2](l);
+  emailPrevs.unshift({ to: l.email, subject, body });
+  const el = document.getElementById('email-prev-wrap');
+  document.getElementById('email-count').textContent = emailPrevs.length + ' drafted';
+  el.innerHTML = emailPrevs.slice(0, 2).map(p => `<div class="email-card"><div class="email-meta">To: <span>${p.to}</span> · Subj: <span>${p.subject}</span></div><div class="email-body">${p.body}</div></div>`).join('');
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function waitPaused() { if (!paused) return Promise.resolve(); return new Promise(r => { pauseRes = r; }); }
+function spd() { return parseInt(document.getElementById('speed-sel').value); }
+async function processLead(l, idx) {
+  const s = spd();
+  setStatus(idx, 'p-blue', '● Enriching'); setPStep(0); await waitPaused(); await sleep(s * .4);
+  addLog('🔍', `Apollo: Enriched ${l.name} at ${l.company}`);
+  setStatus(idx, 'p-purple', '● Drafting'); setPStep(2); await sleep(s * .6); await waitPaused();
+  addLog('✦', `Claude: Drafting email for ${l.name} (${l.title})`);
+  addEmail(l, idx);
+  setStatus(idx, 'p-amber', '● Sending'); setPStep(3); await sleep(s * .5); await waitPaused();
+  addLog('📧', `Outlook: Email sent to ${l.email}`);
+  setStatus(idx, 'p-teal', '● Logging'); setPStep(4); await sleep(s * .4); await waitPaused();
+  addLog('🗂', `HubSpot: Contact + deal created for ${l.name}`);
+  await sleep(s * .3);
+  setStatus(idx, 'p-green', '✓ Done'); setPStep(5);
+  addLog('✅', `Done: ${l.name} — sent & logged`);
+  setProgress(Math.round(((idx + 1) / LEADS.length) * 100));
+}
+async function runDemo() {
+  if (running) return;
+  running = true; paused = false;
+  document.getElementById('run-badge');
+  setBadge('Running', 'running');
+  document.querySelector('[onclick="runDemo()"]').disabled = true;
+  document.getElementById('pause-btn').disabled = false;
+  for (let i = 0; i < LEADS.length; i++) {
+    if (!running) break;
+    await processLead(LEADS[i], i);
+    await sleep(200);
+  }
+  running = false;
+  setBadge('Complete', 'done');
+  setPStep(6);
+  addLog('🎉', `Pipeline complete — ${LEADS.length} leads processed`);
+  document.querySelector('[onclick="runDemo()"]').disabled = false;
+  document.getElementById('pause-btn').disabled = true;
+}
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? 'Resume' : 'Pause';
+  setBadge(paused ? 'Paused' : 'Running', paused ? 'paused' : 'running');
+  if (!paused && pauseRes) { pauseRes(); pauseRes = null; }
+}
+function resetDemo() {
+  running = false; paused = false; if (pauseRes) { pauseRes(); pauseRes = null; }
+  logEntries = []; emailPrevs = [];
+  LEADS.forEach((_, i) => setStatus(i, 'p-gray', 'Queued'));
+  setBadge('Idle', 'idle'); setProgress(0); setPStep(-1);
+  document.getElementById('log-wrap').innerHTML = '<div style="color:var(--text3);font-size:12px;padding:4px 0">No activity yet</div>';
+  document.getElementById('email-prev-wrap').innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0">Emails appear here as Claude drafts them...</div>';
+  document.getElementById('email-count').textContent = '';
+  document.querySelector('[onclick="runDemo()"]').disabled = false;
+  document.getElementById('pause-btn').disabled = true;
+}
+</script>
+</body>
+</html>
