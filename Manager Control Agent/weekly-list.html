@@ -11,7 +11,7 @@ button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 main{max-width:860px;margin:0 auto;padding:16px}
 .hello{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .hello h2{margin:0;font-size:22px}.score{font-size:13px;color:var(--muted)}
-.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;display:grid;grid-template-columns:62px 1fr;gap:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}.hero{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:16px;align-items:center}.hero .big{font-size:30px;font-weight:700;line-height:1}.hero .s{color:var(--muted);font-size:13px}
 .tick{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
 .ok{background:var(--ok-soft);color:var(--ok)}.warn{background:var(--warn-soft);color:var(--warn)}.bad{background:var(--bad-soft);color:var(--bad)}.na{background:#efedeb;color:#777}
 .item h3{margin:0;font-size:15px}.item .why{color:var(--muted);font-size:13px;margin:2px 0 6px}
@@ -33,7 +33,7 @@ td.c{text-align:center;font-weight:700}tr.rep{cursor:pointer}tr.rep:hover td{bac
 <header><h1>My <span>Week</span></h1><span class="small" id="snap"></span>
 <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button id="b-team">Team</button><select id="rep"></select></span></header>
 <main id="app"></main>
-<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script><script src="app/charts.js"></script>
 <script>
 (function(){
 const M=window.MCA; const app=document.getElementById('app'); if(!M){app.textContent='No data file found.';return;}
@@ -69,9 +69,11 @@ function renderRep(id){
   const r=M.repById[id]; if(!r){app.innerHTML='<p class="small">Pick a rep above, or Team.</p>';return;}
   const s=M.repSummary(r), I=items(s); const done=I.filter(i=>i.state==='ok').length;
   let h='<div class="hello"><div><h2>'+esc(r.name)+', your week</h2><div class="small">'+M.W.label+' · the agent ticks these from HubSpot, you do not</div></div><div class="score">'+done+' of '+I.length+' done so far</div></div>';
-  I.forEach(i=>{ h+='<div class="item"><div class="tick '+i.state+'">'+sym[i.state]+'</div><div><h3>'+i.t+'</h3><div class="why">'+i.why+'</div>'+(i.n?'<div class="bar"><i style="width:'+Math.min(100,M.pct(i.v,i.n))+'%;background:'+(i.state==='ok'?'var(--ok)':i.state==='warn'?'var(--warn)':'var(--bad)')+'"></i></div>':'')+(i.start.length?'<ul class="start">'+i.start.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'')+'</div></div>'; });
+  const CH=window.CH, cc={ok:CH.C.good,warn:CH.C.warn,bad:CH.C.crit,na:'#c3c2b7'};
+  h+='<div class="hero">'+CH.ring(done,I.length,{r:28,stroke:7,color:done>=4?CH.C.good:done>=2?CH.C.warn:CH.C.crit,text:done+'/'+I.length})+'<div><div class="big">'+done+' of '+I.length+' done</div><div class="s">'+s.calls.thisWeek+' calls · '+s.emails.thisWeek+' emails · '+s.ms.length+' meetings · '+s.paWorked+' priority accounts worked</div></div></div>';
+  I.forEach(i=>{ const f=i.state==='na'?0:i.n?Math.min(1,i.v/i.n):(i.state==='ok'?1:i.state==='warn'?0.5:0.1); h+='<div class="item"><div>'+CH.ring(f,1,{r:22,stroke:6,color:cc[i.state],text:sym[i.state]})+'</div><div><h3>'+i.t+'</h3><div class="why">'+i.why+'</div>'+(i.start.length?'<ul class="start">'+i.start.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'')+'</div></div>'; });
   const c=comments[id]||'';
-  h+='<div class="item"><div class="tick na">S</div><div><h3>From your manager</h3>'+(c?'<div class="comment">'+esc(c)+'</div>':'<div class="why">No comment this week.</div>')+'<div class="why" style="margin-top:8px">Reply here, for example "Google: demo booked 18 Nov". The agent will update HubSpot after you say yes.</div><textarea placeholder="Your reply"></textarea><div class="small">Prototype: nothing is sent.</div></div></div>';
+  h+='<div class="item"><div class="tick na" style="margin:8px auto 0">S</div><div><h3>From your manager</h3>'+(c?'<div class="comment">'+esc(c)+'</div>':'<div class="why">No comment this week.</div>')+'<div class="why" style="margin-top:8px">Reply here, for example "Google: demo booked 18 Nov". The agent will update HubSpot after you say yes.</div><textarea placeholder="Your reply"></textarea><div class="small">Prototype: nothing is sent.</div></div></div>';
   if(s.wonWk.length) h+='<div class="note">Nice one: '+s.wonWk.map(d=>'<b>'+esc(d.name)+'</b>'+(d.amount?' ('+chf(d.amount)+')':'')).join(', ')+' closed won this week.</div>';
   app.innerHTML=h;
 }

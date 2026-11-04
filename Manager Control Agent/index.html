@@ -18,7 +18,7 @@ nav button,nav select{font:inherit;padding:6px 12px;border:1px solid var(--line)
 nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 main{padding:16px 20px;max-width:1500px;margin:0 auto}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:14px}.charts .card h3{margin:0 0 8px;font-size:13px}.charts .card h3 span{color:var(--muted);font-weight:400;font-size:12px}.rows .r{display:grid;grid-template-columns:90px 1fr 40px;gap:8px;align-items:center;padding:3px 0;font-size:12px}.rows .r b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rows .r span{text-align:right;color:var(--muted)}
 .card h2{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
 .card .big{font-size:26px;font-weight:700;line-height:1.1}
 .card .sub{color:var(--muted);font-size:12px;margin-top:4px}
@@ -73,6 +73,7 @@ details{margin-top:14px;font-size:12px;color:var(--muted)}details summary{cursor
 <main id="app"></main>
 <script src="data/live.js"></script>
 <script src="data/sample.js"></script>
+<script src="app/charts.js"></script>
 <script>
 (function(){
 const D = window.MCA_DATA;
@@ -147,6 +148,14 @@ function renderManager(){
   h += '<div class="card"><h2>2 · Meetings and outcomes</h2><div class="big">'+allMs.length+' <span class="muted" style="font-size:14px">meetings this week</span></div><div class="sub">'+sum(S.map(s=>s.lm.length))+' last week · '+sum(S.map(s=>s.won.length))+' won, '+sum(S.map(s=>s.lost.length))+' lost since '+fmtD(D.lostSince||'2026-10-05')+'</div><div class="flags">'+flag(allGaps.noType,'no meeting type','warn')+flag(allGaps.noOutcome,'no outcome','warn')+flag(allGaps.noRec,'no recording in HubSpot','grey')+'</div></div>';
   h += '<div class="card"><h2>3 · Pipeline</h2><div class="big">'+chf(totDueAmt)+' <span class="muted" style="font-size:14px">due to close by 31 Dec ('+totDue+' deals)</span></div><div class="sub">Open deals, live stages only</div><div class="flags">'+flag(totPast,'close date in the past')+flag(totStale,'stale 30+ days','warn')+'</div></div>';
   h += '</div>';
+  const CH=window.CH, C=CH.C, fn=n=>n.split(' ')[0];
+  const types={}; S.flatMap(s=>s.ms.concat(s.lm)).forEach(m=>{const k=m.type||'No type';types[k]=(types[k]||0)+1;}); const tp=Object.entries(types).sort((a,b)=>b[1]-a[1]); const tcol=[C.s1,C.s2,C.s3,C.s4,'#6250d6']; const tparts=tp.slice(0,5).map(([k,v],i)=>({label:k,value:v,color:k==='No type'?'#c3c2b7':tcol[i]})); const rest=tp.slice(5).reduce((a,x)=>a+x[1],0); if(rest) tparts.push({label:'Other',value:rest,color:'#e6e4df'});
+  h += '<div class="charts">';
+  h += '<div class="card"><h3>Priority accounts <span>status across the team</span></h3>'+CH.donut([{label:'buying',value:S.reduce((a,s)=>a+s.pa.filter(x=>x.status==='buying').length,0),color:C.good},{label:'in touch',value:S.reduce((a,s)=>a+s.pa.filter(x=>x.status==='intouch').length,0),color:C.s1},{label:'needs work',value:paNeeds,color:C.crit}],{center:String(paTotal),sub:'accounts'})+'</div>';
+  h += '<div class="card"><h3>Meetings by type <span>this week and last</span></h3>'+CH.donut(tparts,{center:String(allMs.length+sum(S.map(s=>s.lm.length))),sub:'meetings'})+'</div>';
+  h += '<div class="card" style="grid-column:span 2"><h3>New business activity <span>calls plus emails, this week vs last</span></h3>'+CH.columns(S.map(s=>fn(s.r.name)),[{label:'this week',color:C.s1,values:S.map(s=>s.calls.thisWeek+s.emails.thisWeek)},{label:'last week',color:'#b7d3f6',values:S.map(s=>s.calls.lastWeek+s.emails.lastWeek)}],{width:900,height:200})+'</div>';
+  h += '<div class="card"><h3>Pipeline hygiene <span>open deals per rep</span></h3><div class="rows">'+S.slice().sort((a,b)=>(b.past.n+b.stale.n)-(a.past.n+a.stale.n)).slice(0,8).map(s=>'<div class="r"><b>'+esc(fn(s.r.name))+'</b>'+CH.segbar([{label:'due by 31 Dec',value:s.due.n,color:C.s1},{label:'past close date',value:s.past.n,color:C.crit},{label:'stale',value:s.stale.n,color:C.warn}],{legend:false})+'<span>'+(s.due.n+s.past.n+s.stale.n)+'</span></div>').join('')+'</div>'+CH.legend([{label:'due by 31 Dec',color:C.s1},{label:'past close date',color:C.crit},{label:'stale 30+ days',color:C.warn}])+'</div>';
+  h += '</div>';
   h += '<table><thead><tr><th>Rep</th><th class="grp" colspan="2">Priority accounts</th><th class="grp" colspan="2">Meetings</th><th class="grp" colspan="3">New business activity</th><th class="grp" colspan="3">Pipeline</th></tr>';
   h += '<tr><th></th><th class="num sep">Worked / list</th><th class="num">Not touched 30d</th><th class="num sep">This week</th><th>Gaps</th><th class="num sep">Calls</th><th class="num">Emails</th><th class="num">Tasks done / missed</th><th class="num sep">Due by 31 Dec</th><th class="num">Past close</th><th class="num">Stale</th></tr></thead><tbody>';
   let lastTeam='';
@@ -166,6 +175,7 @@ function renderManager(){
   h += howCounted();
   app.innerHTML = h;
   app.querySelectorAll('tr.rep').forEach(tr=>tr.addEventListener('click',()=>showRep(tr.dataset.rep)));
+  app.querySelectorAll('svg').forEach(window.CH.hover);
 }
 
 // ---------- rep view ----------
@@ -183,6 +193,10 @@ function renderRep(repId){
   const s = repSummary(r);
   const statusChip = a => a.status==='buying'?'<span class="chip ok">Buying · '+a.openDeals+' open</span>':a.status==='intouch'?'<span class="chip info">In touch</span>':'<span class="chip bad">Needs work</span>';
   let h = '<div class="toolbar"><p class="repname">'+esc(r.name)+'</p><span class="badge grey">'+esc(r.team)+(r.region?' · '+esc(r.region):'')+'</span><span class="muted small">'+W.label+'</span><button class="btn light" id="back">← Manager view</button></div>';
+  const CH=window.CH, C=CH.C;
+  h += '<div class="charts"><div class="card"><h3>Your priority accounts</h3>'+CH.donut([{label:'buying',value:s.pa.filter(a=>a.status==='buying').length,color:C.good},{label:'in touch',value:s.pa.filter(a=>a.status==='intouch').length,color:C.s1},{label:'needs work',value:s.paNeeds,color:C.crit}],{center:String(s.pa.length),sub:'accounts'})+'</div>';
+  h += '<div class="card"><h3>Your activity <span>this week vs last</span></h3>'+CH.columns(['Calls','Emails','Meetings','Tasks done'],[{label:'this week',color:C.s1,values:[s.calls.thisWeek,s.emails.thisWeek,s.ms.length,s.tc.completed]},{label:'last week',color:'#b7d3f6',values:[s.calls.lastWeek,s.emails.lastWeek,s.lm.length,(D.taskCounts.lastWeek[r.id]||{}).completed||0]}],{height:180,labels:true})+'</div>';
+  h += '<div class="card"><h3>Your pipeline <span>open deals</span></h3>'+CH.hbar([{label:'due by 31 Dec',value:s.due.n,color:C.s1},{label:'past close date',value:s.past.n,color:C.crit},{label:'stale 30+ days',value:s.stale.n,color:C.warn}],{labelW:120})+'<div class="small muted">'+chf(s.due.amt)+' due · '+chf(s.past.amt)+' past · '+chf(s.stale.amt)+' stale</div></div></div>';
   // 1 priority accounts
   h += '<div class="panel"><h3>1 · Your priority accounts <span class="n">'+s.paWorked+' of '+s.pa.length+' worked this week · '+s.paNeeds+' not touched in 30 days</span></h3>';
   if(s.pa.length<cap(r)) h += '<div class="note">HubSpot has '+s.pa.length+' accounts on your list. The target is '+cap(r)+'. Mark the rest as Target Account in HubSpot and they appear here.</div>';
@@ -215,6 +229,7 @@ function renderRep(repId){
   h += howCounted();
   app.innerHTML = h;
   document.getElementById('back').onclick = ()=>setView('manager');
+  app.querySelectorAll('svg').forEach(window.CH.hover);
   document.getElementById('send').onclick = ()=>{ const v=document.getElementById('reply').value.trim(); if(!v) return; document.getElementById('reply-out').innerHTML='<div class="note"><b>Saved for the demo.</b> The agent would read this, propose the HubSpot change (note, task, close date or stage) and wait for your yes. Your text: “'+esc(v)+'”</div>'; };
 }
 
