@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Command Center</title>
+<style>
+:root{--bg:#F4F3F1;--side:#15161A;--side2:#1f2026;--ink:#0C0C0D;--muted:#6b6b70;--line:#e3e0dc;--brand:#F8531C;--brand-soft:#FEF0EA;--ok:#1f8a4c;--ok-soft:#e6f4ec;--warn:#b7791f;--warn-soft:#fdf3e1;--bad:#c0392b;--bad-soft:#fdeceb;--info:#2b5fb8;--info-soft:#e8eff9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif;display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+aside{background:var(--side);color:#cfd0d6;padding:16px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+aside .logo{color:#fff;font-weight:800;font-size:16px;padding:6px 10px 14px;letter-spacing:.2px}aside .logo span{color:var(--brand)}
+aside a{display:block;color:#cfd0d6;text-decoration:none;padding:8px 10px;border-radius:8px;font-size:13.5px;cursor:pointer}
+aside a.on{background:var(--side2);color:#fff;font-weight:600}aside a:hover{background:var(--side2)}
+aside .sec{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#7a7b85;padding:12px 10px 4px}
+aside .foot{margin-top:auto;font-size:11px;color:#7a7b85;padding:10px}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.top h1{font-size:16px;margin:0}.top .role{display:flex;gap:4px;background:#f1efed;padding:3px;border-radius:9px}
+.top .role button{font:inherit;font-size:13px;border:0;background:transparent;padding:5px 10px;border-radius:7px;cursor:pointer}.top .role button.on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+.top select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#efedeb;color:#444;font-weight:600;white-space:nowrap}
+main{padding:18px 20px;max-width:1500px}
+h2{font-size:20px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 14px;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}.kpi .v{font-size:24px;font-weight:700;margin:2px 0}.kpi .s{font-size:12px;color:var(--muted)}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}@media(max-width:1100px){.g2,.g3{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.panel h3{margin:0 0 8px;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.panel h3 .n{color:var(--muted);font-weight:400;font-size:12px}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.bad{background:var(--bad-soft);color:var(--bad)}.chip.na{background:#efedeb;color:#777}.chip.info{background:var(--info-soft);color:var(--info)}.chip.brand{background:var(--brand-soft);color:#9a3a12}
+.bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:#eee}.bar i{display:block;height:100%}
+.bar .ok{background:var(--ok)}.bar .warn{background:var(--warn)}.bar .bad{background:var(--bad)}.bar .na{background:#d5d3d0}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);background:#fbfaf9;white-space:nowrap}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.click{cursor:pointer}tr.click:hover td{background:#fff8f5}
+.init{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.init:hover{border-color:#bbb}.init .t{font-weight:600;font-size:13.5px}.init .m{font-size:12px;color:var(--muted)}
+.dots{display:flex;gap:3px;flex-wrap:wrap}.dot{width:10px;height:10px;border-radius:50%}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}.dot.na{background:#d5d3d0}
+.list{list-style:none;margin:0;padding:0}.list li{padding:6px 0;border-bottom:1px dashed var(--line);display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.list li:last-child{border-bottom:0}.list .t{flex:1;min-width:160px}.list .m{color:var(--muted);font-size:12px;white-space:nowrap}
+.small{font-size:12px}.muted{color:var(--muted)}
+.btn{font:inherit;font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}.btn.light{background:#fff;color:var(--ink)}.btn.ghost{border-color:var(--line);background:#fff;color:var(--muted)}
+.drawer{position:fixed;top:0;right:0;width:min(560px,100%);height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.08);padding:18px;overflow:auto;z-index:20;display:none}.drawer.open{display:block}
+.drawer h3{margin:0 0 4px;font-size:17px}.drawer .x{float:right;cursor:pointer;font-size:20px;color:var(--muted)}
+.rank{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line)}.rank .b{height:8px;background:var(--brand);border-radius:4px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.col .l{font-size:11px;color:var(--muted)}.col .hb{height:60px;display:flex;align-items:flex-end}.col .hb i{display:block;width:100%;background:var(--brand);border-radius:4px 4px 0 0}
+textarea,input[type=text],input[type=number]{font:inherit;padding:7px;border:1px solid var(--line);border-radius:8px;width:100%}
+.note{background:var(--info-soft);border-left:3px solid var(--info);padding:8px 10px;border-radius:6px;font-size:12px;margin:8px 0}
+.comment{background:#fffbe6;border:1px solid #f1e3a0;border-radius:8px;padding:6px 10px;font-size:13px}
+.inbox-item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff}.inbox-item .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.inbox-item .act{margin-top:8px;display:flex;gap:6px}
+.inbox-item.done{opacity:.55}
+@media(max-width:900px){body{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap}aside .foot,aside .sec{display:none}}
+@media print{aside,.top{display:none}body{grid-template-columns:1fr}}
+</style></head>
+<body>
+<aside>
+ <div class="logo">Sales <span>Command</span> Center</div>
+ <div class="sec">Run the week</div>
+ <a data-v="overview" class="on">Overview</a><a data-v="initiatives">Initiatives</a><a data-v="scorecards">Scorecards and leaderboard</a><a data-v="inbox">Agent inbox</a><a data-v="friday">Friday report</a>
+ <div class="sec">Look deeper</div>
+ <a data-v="meetings">Meetings intelligence</a><a data-v="pipeline">Pipeline and forecast</a><a data-v="coverage">Account coverage</a>
+ <div class="sec">Run the system</div>
+ <a data-v="rollout">Tool rollout</a><a data-v="settings">Settings and how it works</a>
+ <div class="foot" id="foot"></div>
+</aside>
+<div>
+ <div class="top"><h1 id="title">Overview</h1>
+  <div class="role"><button data-r="exec">Executive</button><button data-r="manager" class="on">Head of sales</button><button data-r="rep">Rep</button><button data-r="owner">Agent owner</button></div>
+  <select id="rep"></select><span class="badge" id="snap"></span></div>
+ <main id="app"></main>
+</div>
+<div class="drawer" id="drawer"></div>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script>
+<script>
+(function(){
+const M=window.MCA, app=document.getElementById('app'); if(!M){app.textContent='No data file found.';return;}
+const {D,esc,fmtD,chf,pl,pct,sum,by}=M; const INITS=M.inits;
+document.getElementById('snap').textContent=(D.isSample?'Sample data':'HubSpot snapshot '+D.generated)+' · read only';
+document.getElementById('foot').textContent='Reads HubSpot only. Every change needs a human yes.';
+const sel=document.getElementById('rep'); sel.innerHTML=D.reps.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('');
+let role='manager', view='overview', repId=D.reps[0].id;
+const S=()=>D.reps.map(M.repSummary);
+const comments=JSON.parse(localStorage.getItem('mca.comments')||'{}'); const saveComment=(id,v)=>{comments[id]=v;localStorage.setItem('mca.comments',JSON.stringify(comments));};
+const ratings=JSON.parse(localStorage.getItem('mca.demos')||'{}'); const inboxState=JSON.parse(localStorage.getItem('mca.inbox')||'{}');
+const stateBar=(counts)=>{const t=sum(Object.values(counts))||1;return '<div class="bar">'+['ok','warn','bad','na'].map(k=>'<i class="'+k+'" style="width:'+(100*(counts[k]||0)/t)+'%"></i>').join('')+'</div>';};
+const countStates=arr=>arr.reduce((c,x)=>{c[x.state]=(c[x.state]||0)+1;return c;},{});
+const scoreRep=(s)=>{const sc=INITS.filter(i=>i.status==='live').map(i=>M.score(i,s));const c=countStates(sc);return {sc,c,points:(c.ok||0)*2+(c.warn||0),max:2*sc.filter(x=>x.state!=='na').length};};
+const chipS=st=>'<span class="chip '+st+'">'+({ok:'on track',warn:'partly',bad:'behind',na:'n/a'}[st])+'</span>';
+const statusChip=i=>'<span class="chip '+(i.status==='live'?'ok':i.status==='needs field'?'warn':i.status==='prototype'?'info':'na')+'">'+esc(i.status)+'</span>';
+
+// ---------- OVERVIEW ----------
+function overview(){
+  const all=S();
+  if(role==='exec') return execView(all);
+  if(role==='rep') return repView();
+  if(role==='owner') return ownerView(all);
+  // head of sales
+  const live=INITS.filter(i=>i.status==='live');
+  let h='<h2>Head of sales · '+esc(D.manager||'')+'</h2><p class="sub">'+M.W.label+' · every initiative, every rep, confirmed by HubSpot. Click anything to drill down.</p>';
+  const needs=[];
+  all.forEach(s=>{ if(s.past.n>20) needs.push({t:esc(s.r.name)+': '+pl(s.past.n,'deal')+' with a close date in the past ('+chf(s.past.amt)+')',a:'pipeline'}); if(s.g.noOutcome.length>=5) needs.push({t:esc(s.r.name)+': '+pl(s.g.noOutcome.length,'meeting')+' with no outcome',a:'meetings'}); if(s.pa.length===0) needs.push({t:esc(s.r.name)+': no priority accounts marked in HubSpot',a:'coverage'}); if(s.lostNoReason.length) needs.push({t:esc(s.r.name)+': '+pl(s.lostNoReason.length,'lost deal')+' without a reason',a:'meetings'}); });
+  (D.rollout||[]).filter(p=>p.blocker).forEach(p=>needs.push({t:esc(p.name)+' blocked: '+esc(p.blocker),a:'rollout'}));
+  h+='<div class="kpis">'+kpi('Reps on track',all.filter(s=>{const c=scoreRep(s).c;return (c.bad||0)===0;}).length+' of '+all.length,'no initiative behind')+kpi('Won since '+fmtD(D.lostSince||'2026-10-05'),chf(sum(all.map(s=>s.wonAmt))),sum(all.map(s=>s.won.length))+' deals · '+sum(all.map(s=>s.lost.length))+' lost')+kpi('Due by 31 Dec',chf(sum(all.map(s=>s.due.amt))),sum(all.map(s=>s.due.n))+' open deals')+kpi('Hygiene to fix',sum(all.map(s=>s.past.n))+' past · '+sum(all.map(s=>s.stale.n))+' stale','close dates and untouched deals')+kpi('Meetings this week',sum(all.map(s=>s.ms.length)),sum(all.map(s=>s.g.noType.length))+' no type · '+sum(all.map(s=>s.g.noOutcome.length))+' no outcome')+'</div>';
+  h+='<div class="grid g2"><div class="panel"><h3>Initiatives <span class="n">'+live.length+' live of '+INITS.length+'</span></h3>';
+  const groups=[...new Set(INITS.map(i=>i.group))];
+  groups.forEach(g=>{ const gi=INITS.filter(i=>i.group===g); h+='<div class="small muted" style="margin:8px 0 4px;text-transform:uppercase;letter-spacing:.4px">'+esc(g)+'</div>'; gi.forEach(i=>{ const sc=all.map(s=>M.score(i,s)); const c=countStates(sc); h+='<div class="init" data-init="'+i.id+'"><div style="display:flex;justify-content:space-between;gap:8px"><span class="t">'+esc(i.name)+'</span>'+statusChip(i)+'</div>'+(i.status==='live'?stateBar(c)+'<div class="m">'+(c.ok||0)+' on track · '+(c.warn||0)+' partly · '+(c.bad||0)+' behind'+((c.na||0)?' · '+c.na+' n/a':'')+'</div>':'<div class="m">'+esc(i.setup||i.metric)+'</div>')+'</div>'; }); });
+  h+='</div><div><div class="panel"><h3>Needs you <span class="n">'+needs.length+'</span></h3><ul class="list">'+(needs.slice(0,12).map(n=>'<li><span class="t">'+n.t+'</span><a class="small" style="color:var(--info);cursor:pointer" data-go="'+n.a+'">open</a></li>').join('')||'<li class="muted">Nothing urgent.</li>')+'</ul></div>';
+  h+='<div class="panel"><h3>Scorecard <span class="n">points = 2 per initiative on track, 1 partly</span></h3><table><thead><tr><th>Rep</th><th>Status</th><th class="num">Points</th></tr></thead><tbody>'+all.map(s=>({s,sc:scoreRep(s)})).sort((a,b)=>b.sc.points/(b.sc.max||1)-a.sc.points/(a.sc.max||1)).map(x=>'<tr class="click" data-rep="'+x.s.r.id+'"><td><b>'+esc(x.s.r.name)+'</b> <span class="small muted">'+esc(x.s.r.team)+'</span></td><td style="width:40%">'+stateBar(x.sc.c)+'</td><td class="num">'+x.sc.points+' / '+x.sc.max+'</td></tr>').join('')+'</tbody></table></div></div></div>';
+  return h;
+}
+const kpi=(l,v,s)=>'<div class="kpi"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="s">'+(s||'')+'</div></div>';
+function execView(all){
+  const won=D.deals.won, newLogo=won.filter(d=>/new/i.test(d.growth||'')||/new customer/i.test(d.type||'')), nlAmt=sum(newLogo.map(d=>d.amount)), wAmt=sum(won.map(d=>d.amount));
+  const lostAmt=sum(D.deals.lost.map(d=>d.amount)); const winRate=pct(won.length,won.length+D.deals.lost.length);
+  const green=all.filter(s=>(scoreRep(s).c.bad||0)===0).length;
+  let h='<h2>Executive view</h2><p class="sub">The sales organisation at a glance. Strategy 2027: twice the new business. Every number is from HubSpot, '+M.W.label.toLowerCase()+'.</p>';
+  h+='<div class="kpis">'+kpi('Won since '+fmtD(D.lostSince||'2026-10-05'),chf(wAmt),won.length+' deals')+kpi('New business share',pct(nlAmt,wAmt)+'%',chf(nlAmt)+' from new logos · target 2x')+kpi('Win rate',winRate+'%',won.length+' won · '+D.deals.lost.length+' lost ('+chf(lostAmt)+')')+kpi('Pipeline due by 31 Dec',chf(sum(all.map(s=>s.due.amt))),sum(all.map(s=>s.due.n))+' deals in live stages')+kpi('Pipeline hygiene',pct(all.length-all.filter(s=>s.past.n>5||s.stale.n>3).length,all.length)+'% clean',sum(all.map(s=>s.past.n))+' past dates · '+sum(all.map(s=>s.stale.n))+' stale')+kpi('Team on track',green+' of '+all.length,'reps with no initiative behind')+'</div>';
+  h+='<div class="grid g3"><div class="panel"><h3>Won by rep <span class="n">CHF, since '+fmtD(D.lostSince||'2026-10-05')+'</span></h3>'+ranking(all.map(s=>({n:s.r.name,v:s.wonAmt})),chf)+'</div>';
+  h+='<div class="panel"><h3>New business activity <span class="n">calls this week</span></h3>'+ranking(all.map(s=>({n:s.r.name,v:s.calls.thisWeek})),v=>v+' calls')+'</div>';
+  h+='<div class="panel"><h3>Lost reasons <span class="n">since '+fmtD(D.lostSince||'2026-10-05')+'</span></h3>'+reasonTable()+'</div></div>';
+  h+='<div class="panel"><h3>Initiative health</h3><table><thead><tr><th>Initiative</th><th>Group</th><th style="width:35%">Team</th><th>Status</th></tr></thead><tbody>'+INITS.filter(i=>i.status==='live').map(i=>{const c=countStates(all.map(s=>M.score(i,s)));return '<tr class="click" data-init="'+i.id+'"><td>'+esc(i.name)+'</td><td class="small muted">'+esc(i.group)+'</td><td>'+stateBar(c)+'</td><td class="small">'+(c.ok||0)+' on track, '+(c.bad||0)+' behind</td></tr>';}).join('')+'</tbody></table></div>';
+  return h;
+}
+function ranking(rows,fmt){ const mx=Math.max(1,...rows.map(r=>r.v||0)); return rows.sort((a,b)=>(b.v||0)-(a.v||0)).map((r,i)=>'<div class="rank"><span class="muted small">'+(i+1)+'</span><div><div class="small">'+esc(r.n)+'</div><div class="b" style="width:'+pct(r.v||0,mx)+'%"></div></div><span class="small">'+fmt(r.v||0)+'</span></div>').join(''); }
+function reasonTable(){ const c={}; D.deals.lost.forEach(d=>{const k=d.lostReason||'(no reason)';c[k]=(c[k]||0)+1;}); const comp={}; D.deals.lost.filter(d=>d.competitor).forEach(d=>{comp[d.competitor]=(comp[d.competitor]||0)+1;}); return '<table>'+Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td class="num">'+v+'</td></tr>').join('')+'</table>'+(Object.keys(comp).length?'<div class="small muted" style="margin-top:6px">Competitors named: '+Object.entries(comp).map(([k,v])=>esc(k)+' ('+v+')').join(', ')+'</div>':''); }
+function ownerView(all){
+  let h='<h2>Agent owner</h2><p class="sub">Is the data good enough to trust the numbers, and is everyone connected.</p>';
+  const q=[{l:'Meetings with no type',v:sum(all.map(s=>s.g.noType.length))},{l:'Past meetings with no outcome',v:sum(all.map(s=>s.g.noOutcome.length))},{l:'Lost deals with no reason',v:sum(all.map(s=>s.lostNoReason.length))},{l:'Open deals with no next task (in lists)',v:sum(all.map(s=>s.noNext.length))},{l:'Reps with no priority list',v:all.filter(s=>!s.pa.length).length},{l:'Reps with no strategic prospects',v:all.filter(s=>!s.prospects.length).length}];
+  h+='<div class="kpis">'+q.map(x=>kpi(x.l,x.v)).join('')+'</div>';
+  h+='<div class="grid g2"><div class="panel"><h3>Fields to add in HubSpot</h3><ul class="list">'+INITS.filter(i=>i.status==='needs field').map(i=>'<li><span class="t"><b>'+esc(i.name)+'</b><div class="small muted">'+esc(i.setup||'')+'</div></span></li>').join('')+'</ul></div>';
+  h+='<div class="panel"><h3>Refresh</h3><p class="small">Snapshot: '+esc(D.generated)+'. Say "refresh the Manager Control data" in the folder chat. Read only. '+(D.notes||[]).map(esc).join(' ')+'</p></div></div>';
+  h+=rolloutPanel();
+  return h;
+}
+function repView(){
+  const r=M.repById[repId], s=M.repSummary(r), sc=scoreRep(s);
+  let h='<h2>'+esc(r.name)+'</h2><p class="sub">'+esc(r.team)+(r.region?' · '+esc(r.region):'')+' · '+M.W.label+' · '+sc.points+' of '+sc.max+' points</p>';
+  if(comments[r.id]) h+='<div class="comment"><b>From '+esc(D.manager||'your manager')+':</b> '+esc(comments[r.id])+'</div>';
+  h+='<div class="grid g2" style="margin-top:10px"><div class="panel"><h3>My initiatives</h3><table>'+INITS.filter(i=>i.status==='live').map(i=>{const x=M.score(i,s);return '<tr class="click" data-init="'+i.id+'"><td>'+esc(i.name)+'<div class="small muted">'+esc(x.note||i.metric)+'</div></td><td class="num small">'+esc(x.label)+'</td><td>'+chipS(x.state)+'</td></tr>';}).join('')+'</table></div>';
+  h+='<div><div class="panel"><h3>Do first</h3><ul class="list">'+[...s.pa.filter(a=>a.status==='needswork').slice(0,3).map(a=>'<li><span class="t">Touch <b>'+esc(a.name)+'</b></span><span class="m">'+(a.lastActivity?'last '+fmtD(a.lastActivity):'never')+'</span></li>'),...s.g.noOutcome.slice(0,2).map(m=>'<li><span class="t">Add the outcome of <b>'+esc(m.company||m.title)+'</b></span><span class="m">'+fmtD(m.start)+'</span></li>'),...s.pastList.slice(0,2).map(d=>'<li><span class="t">Move or close <b>'+esc(d.name)+'</b></span><span class="m">was due '+fmtD(d.close)+'</span></li>'),...s.inbound.slice(0,2).map(t=>'<li><span class="t">Inbound: <b>'+esc(t.subject.replace(/^New Lead in: /,''))+'</b></span><span class="m">due '+fmtD(t.due)+'</span></li>')].join('')+'</ul></div>';
+  h+='<div class="panel"><h3>Reply to the agent</h3><p class="small muted">Say what happened. The agent proposes the HubSpot update and waits for your yes.</p><textarea id="reply" placeholder="e.g. Oracle: spoke to Dana, demo booked Thu 20 Nov"></textarea><div style="margin-top:6px;display:flex;gap:8px;align-items:center"><button class="btn" id="send">Send</button><span class="small muted">Prototype: nothing is sent.</span></div><div id="reply-out"></div></div></div></div>';
+  return h;
+}
+// ---------- INITIATIVES ----------
+function initiatives(){
+  const all=S();
+  let h='<h2>Initiatives</h2><p class="sub">The strategy, turned into things that can be measured in HubSpot. Click one for the per-rep view, the definition and what it needs.</p>';
+  h+='<div class="panel"><table><thead><tr><th>Initiative</th><th>Group</th><th>Measured by</th><th>Cadence</th><th style="width:22%">Team</th><th>Status</th></tr></thead><tbody>'+INITS.map(i=>{const c=countStates(all.map(s=>M.score(i,s)));return '<tr class="click" data-init="'+i.id+'"><td><b>'+esc(i.name)+'</b><div class="small muted">'+esc(i.why)+'</div></td><td class="small">'+esc(i.group)+'</td><td class="small">'+esc(i.metric)+'</td><td class="small">'+esc(i.cadence)+'</td><td>'+(i.status==='live'?stateBar(c):'<span class="small muted">'+esc(i.setup||'')+'</span>')+'</td><td>'+statusChip(i)+'</td></tr>';}).join('')+'</tbody></table></div>';
+  return h;
+}
+function openInit(id){
+  const i=INITS.find(x=>x.id===id); if(!i) return; const all=S();
+  let h='<span class="x" id="dx">×</span><h3>'+esc(i.name)+'</h3><div style="margin-bottom:8px">'+statusChip(i)+' <span class="chip na">'+esc(i.group)+'</span> <span class="chip na">'+esc(i.cadence)+'</span></div>';
+  h+='<p class="small">'+esc(i.why)+'</p><table class="small"><tr><td class="muted">Measured by</td><td>'+esc(i.metric)+'</td></tr><tr><td class="muted">Source</td><td>'+esc(i.source)+'</td></tr>'+(i.setup?'<tr><td class="muted">Needs</td><td>'+esc(i.setup)+'</td></tr>':'')+'</table>';
+  if(i.status==='live'||i.compute==='demo_feedback'||i.compute==='media_hub'||i.compute==='forecast') h+='<h3 style="margin-top:12px;font-size:14px">By rep</h3><table>'+all.map(s=>({s,x:M.score(i,s)})).sort((a,b)=>({bad:0,warn:1,ok:2,na:3}[a.x.state]-{bad:0,warn:1,ok:2,na:3}[b.x.state])).map(o=>'<tr class="click" data-rep="'+o.s.r.id+'"><td>'+esc(o.s.r.name)+'</td><td class="small">'+esc(o.x.label)+(o.x.note?'<div class="muted">'+esc(o.x.note)+'</div>':'')+'</td><td>'+chipS(o.x.state)+'</td></tr>').join('')+'</table>';
+  if(i.compute==='rollout') h+=rolloutPanel();
+  drawer(h);
+}
+function drawer(h){ const d=document.getElementById('drawer'); d.innerHTML=h; d.classList.add('open'); d.querySelector('#dx').onclick=()=>d.classList.remove('open'); bind(d); }
+// ---------- SCORECARDS ----------
+function scorecards(){
+  const all=S().map(s=>({s,sc:scoreRep(s)})).sort((a,b)=>b.sc.points/(b.sc.max||1)-a.sc.points/(a.sc.max||1));
+  let h='<h2>Scorecards and leaderboard</h2><p class="sub">Not to get people in trouble: transparent, the same for everyone, straight from HubSpot.</p>';
+  h+='<div class="grid g2"><div class="panel"><h3>Weekly scorecard</h3><table><thead><tr><th>#</th><th>Rep</th><th style="width:30%">Initiatives</th><th class="num">Points</th><th>Comment</th></tr></thead><tbody>'+all.map((x,i)=>'<tr><td class="muted">'+(i+1)+'</td><td class="click" data-rep="'+x.s.r.id+'"><b>'+esc(x.s.r.name)+'</b><div class="small muted">'+esc(x.s.r.team)+'</div></td><td>'+stateBar(x.sc.c)+'</td><td class="num">'+x.sc.points+'/'+x.sc.max+'</td><td><input type="text" data-c="'+x.s.r.id+'" value="'+esc(comments[x.s.r.id]||'')+'" placeholder="Note for '+esc(x.s.r.name.split(' ')[0])+'" style="font-size:12px;padding:4px 6px"></td></tr>').join('')+'</tbody></table><p class="small muted">Comments are saved in this browser only (prototype). In the pilot they reach the rep\'s view and the Friday report.</p></div>';
+  h+='<div><div class="panel"><h3>Q4 incentive leaderboard <span class="n">closed won CHF since '+fmtD(D.lostSince||'2026-10-05')+'</span></h3>'+ranking(all.map(x=>({n:x.s.r.name,v:x.s.wonAmt})),chf)+'<p class="small muted">Rule to confirm with the head of sales: all revenue or new logos only.</p></div>';
+  h+='<div class="panel"><h3>Hunters <span class="n">calls plus emails this week</span></h3>'+ranking(all.map(x=>({n:x.s.r.name,v:x.s.calls.thisWeek+x.s.emails.thisWeek})),v=>v+' logged')+'</div></div></div>';
+  return h;
+}
+// ---------- INBOX ----------
+function inbox(){
+  const all=S(); const items=[];
+  all.forEach(s=>{ s.g.noOutcome.slice(0,2).forEach(m=>items.push({id:'o'+m.id,rep:s.r,kind:'Meeting outcome',t:'Set the outcome of "'+esc(m.company||m.title)+'" ('+fmtD(m.start)+')',p:'Propose: Completed. The agent read the calendar; the meeting took place.'}));
+    s.g.noType.slice(0,2).forEach(m=>items.push({id:'t'+m.id,rep:s.r,kind:'Meeting type',t:'Set the type of "'+esc(m.company||m.title)+'"',p:'Propose: '+(/demo/i.test(m.title)?'Pre-sales demo':'Discovery')+', from the meeting title.'}));
+    s.pastList.slice(0,2).forEach(d=>items.push({id:'d'+d.id,rep:s.r,kind:'Close date',t:'"'+esc(d.name)+'" was due '+fmtD(d.close),p:'Propose: move the close date to '+fmtD(M.today.slice(0,8)+'28')+' or mark Closed Lost (reason needed).'}));
+    s.staleList.slice(0,1).forEach(d=>items.push({id:'s'+d.id,rep:s.r,kind:'Next task',t:'"'+esc(d.name)+'" has had no activity since '+fmtD(d.lastActivity),p:'Propose: create a follow up task for Monday with a one line nudge email draft.'}));
+    s.lostNoReason.slice(0,1).forEach(d=>items.push({id:'l'+d.id,rep:s.r,kind:'Lost reason',t:'"'+esc(d.name)+'" was closed lost without a reason',p:'Propose: ask the rep, then set Closed Lost Reason and competitor.'}));
+    s.pa.filter(a=>a.status==='needswork').slice(0,1).forEach(a=>items.push({id:'a'+a.id,rep:s.r,kind:'Priority account',t:'"'+esc(a.name)+'" not touched for '+(a.days!=null?a.days+' days':'a long time'),p:'Propose: a task "re-open the conversation" with contacts at the account and a short note draft.'}));
+  });
+  let h='<h2>Agent inbox</h2><p class="sub">What the agent would do in HubSpot if someone says yes. The one rule: nothing changes without a human yes. '+items.length+' proposals from this snapshot.</p>';
+  h+='<div class="kpis">'+kpi('Waiting for a yes',items.filter(x=>!inboxState[x.id]).length)+kpi('Approved (queued)',items.filter(x=>inboxState[x.id]==='yes').length)+kpi('Skipped',items.filter(x=>inboxState[x.id]==='skip').length)+'</div>';
+  const kinds=[...new Set(items.map(x=>x.kind))];
+  h+='<div class="small muted" style="margin-bottom:8px">'+kinds.map(k=>'<span class="chip na">'+k+' '+items.filter(x=>x.kind===k).length+'</span>').join(' ')+'</div>';
+  h+=items.slice(0,60).map(x=>'<div class="inbox-item '+(inboxState[x.id]?'done':'')+'" id="ib-'+x.id+'"><div class="h"><span class="chip brand">'+x.kind+'</span><b>'+esc(x.rep.name)+'</b><span class="small">'+x.t+'</span></div><div class="small muted" style="margin-top:4px">'+x.p+'</div><div class="act">'+(inboxState[x.id]?'<span class="chip '+(inboxState[x.id]==='yes'?'ok':'na')+'">'+(inboxState[x.id]==='yes'?'approved, queued for the agent':'skipped')+'</span>':'<button class="btn" data-yes="'+x.id+'">Yes, do it</button><button class="btn ghost" data-skip="'+x.id+'">Skip</button>')+'</div></div>').join('');
+  h+='<p class="small muted">Prototype: approvals are saved in this browser only. In the pilot an approved item becomes a HubSpot change made by the agent, with a note "changed by the agent after '+'[name]'+' said yes".</p>';
+  return h;
+}
+// ---------- MEETINGS ----------
+function meetingsView(){
+  const all=S(); const ms=all.flatMap(s=>s.ms.concat(s.lm));
+  const types={}; ms.forEach(m=>{const k=m.type||'(no type)';types[k]=(types[k]||0)+1;}); const outs={}; ms.forEach(m=>{const k=m.outcome||'(blank)';outs[k]=(outs[k]||0)+1;});
+  const demos=ms.filter(M.isDemo); const mx=Math.max(1,...Object.values(types));
+  let h='<h2>Meetings intelligence</h2><p class="sub">This week and last week, every rep. Types, outcomes, demos, recordings, lost reasons.</p>';
+  h+='<div class="kpis">'+kpi('Meetings',ms.length,'this fortnight')+kpi('No type',Object.entries(types).find(x=>x[0]==='(no type)')?.[1]||0)+kpi('Past, no outcome',sum(all.map(s=>s.g.noOutcome.length)))+kpi('No recording in HubSpot',sum(all.map(s=>s.g.noRecording.length)))+kpi('Demos',demos.length,'rate them below')+'</div>';
+  h+='<div class="grid g2"><div class="panel"><h3>By type</h3><div class="cols">'+Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<div class="col"><div class="hb"><i style="height:'+pct(v,mx)+'%"></i></div><div class="l">'+esc(k)+' · '+v+'</div></div>').join('')+'</div></div>';
+  h+='<div class="panel"><h3>Outcomes</h3><table>'+Object.entries(outs).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<tr><td>'+esc(k.toLowerCase())+'</td><td class="num">'+v+'</td></tr>').join('')+'</table></div></div>';
+  h+='<div class="grid g2"><div class="panel"><h3>Demo feedback <span class="n">rep rates red, amber or green; the agent adds the transcript summary</span></h3>'+(demos.length?'<table>'+demos.slice(0,15).map(m=>{const v=ratings[m.id]||'';return '<tr><td>'+esc(m.company||m.title)+'<div class="small muted">'+esc(M.repById[m.owner]?.name||'')+' · '+fmtD(m.start)+'</div></td><td><select data-demo="'+m.id+'" style="font:inherit;font-size:12px"><option value="">rate…</option><option '+(v==='green'?'selected':'')+' value="green">green</option><option '+(v==='amber'?'selected':'')+' value="amber">amber</option><option '+(v==='red'?'selected':'')+' value="red">red</option></select></td></tr>';}).join('')+'</table>':'<p class="small muted">No demos in the window.</p>')+'<p class="small muted">Trend: '+['green','amber','red'].map(c=>c+' '+Object.values(ratings).filter(x=>x===c).length).join(' · ')+'. Needs a HubSpot field to be real.</p></div>';
+  h+='<div class="panel"><h3>Lost deals <span class="n">since '+fmtD(D.lostSince||'2026-10-05')+'</span></h3>'+reasonTable()+'<ul class="list" style="margin-top:8px">'+D.deals.lost.slice(0,10).map(d=>'<li><span class="t"><b>'+esc(d.name)+'</b><div class="small muted">'+esc(M.repById[d.owner]?.name||'')+' · '+esc(d.lostReason||'no reason')+(d.competitor?' · '+esc(d.competitor):'')+'</div></span><span class="m">'+(d.amount?chf(d.amount):'')+'</span></li>').join('')+'</ul></div></div>';
+  return h;
+}
+// ---------- PIPELINE ----------
+function pipelineView(){
+  const all=S();
+  let h='<h2>Pipeline and forecast</h2><p class="sub">Due to close, how it changes, what is stuck. Live stages only.</p>';
+  h+='<div class="kpis">'+kpi('Due by 31 Dec',chf(sum(all.map(s=>s.due.amt))),sum(all.map(s=>s.due.n))+' deals')+kpi('Won since '+fmtD(D.lostSince||'2026-10-05'),chf(sum(all.map(s=>s.wonAmt))))+kpi('Past close date',sum(all.map(s=>s.past.n)),chf(sum(all.map(s=>s.past.amt))))+kpi('Stale 30+ days',sum(all.map(s=>s.stale.n)),chf(sum(all.map(s=>s.stale.amt))))+'</div>';
+  h+='<div class="panel"><h3>By rep</h3><table><thead><tr><th>Rep</th><th class="num">Open</th><th class="num">Due by 31 Dec</th><th class="num">Won since '+fmtD(D.lostSince||'2026-10-05')+'</th><th class="num">Past date</th><th class="num">Stale</th><th class="num">No next task</th><th>Trajectory</th></tr></thead><tbody>'+all.sort((a,b)=>b.due.amt-a.due.amt).map(s=>'<tr class="click" data-rep="'+s.r.id+'"><td><b>'+esc(s.r.name)+'</b></td><td class="num">'+s.open.n+'</td><td class="num">'+s.due.n+'<div class="small muted">'+chf(s.due.amt)+'</div></td><td class="num">'+s.won.length+'<div class="small muted">'+chf(s.wonAmt)+'</div></td><td class="num">'+(s.past.n?'<span class="chip bad">'+s.past.n+'</span>':'<span class="chip ok">0</span>')+'</td><td class="num">'+(s.stale.n?'<span class="chip warn">'+s.stale.n+'</span>':'<span class="chip ok">0</span>')+'</td><td class="num">'+s.noNext.length+'</td><td class="small">'+(s.due.n?(s.past.n>s.due.n?'more past-dated than due: forecast not trustworthy':'needs a monthly commitment to compare'):'nothing due')+'</td></tr>').join('')+'</tbody></table></div>';
+  h+='<div class="grid g2"><div class="panel"><h3>Largest deals due by 31 Dec</h3><ul class="list">'+all.flatMap(s=>s.dueList).sort((a,b)=>(b.amount||0)-(a.amount||0)).slice(0,12).map(d=>'<li><span class="t"><b>'+esc(d.name)+'</b><div class="small muted">'+esc(M.repById[d.owner]?.name||'')+' · '+esc(d.stage)+(d.nextActivity?' · next '+fmtD(d.nextActivity):' · no next task')+'</div></span><span class="m">'+chf(d.amount)+' · '+fmtD(d.close)+'</span></li>').join('')+'</ul></div>';
+  h+='<div class="panel"><h3>Largest deals with a close date in the past</h3><ul class="list">'+all.flatMap(s=>s.pastList).sort((a,b)=>(b.amount||0)-(a.amount||0)).slice(0,12).map(d=>'<li><span class="t"><b>'+esc(d.name)+'</b><div class="small muted">'+esc(M.repById[d.owner]?.name||'')+' · '+esc(d.stage)+'</div></span><span class="m">'+chf(d.amount)+' · was due '+fmtD(d.close)+'</span></li>').join('')+'</ul></div></div>';
+  return h;
+}
+// ---------- COVERAGE ----------
+function coverageView(){
+  const all=S();
+  let h='<h2>Account coverage</h2><p class="sub">Priority accounts, strategic prospects and the John Top 25: who is worked, who is not, which have revenue.</p>';
+  h+='<div class="panel"><table><thead><tr><th>Rep</th><th class="num">Priority list</th><th style="width:28%">Needs work · in touch · buying</th><th class="num">Worked this week</th><th class="num">Strategic prospects</th><th class="num">John Top 25</th><th class="num">Lifetime revenue on list</th></tr></thead><tbody>'+all.map(s=>{const c={bad:s.pa.filter(a=>a.status==='needswork').length,warn:s.pa.filter(a=>a.status==='intouch').length,ok:s.pa.filter(a=>a.status==='buying').length};return '<tr class="click" data-rep="'+s.r.id+'"><td><b>'+esc(s.r.name)+'</b><div class="small muted">target '+M.cap(s.r)+'</div></td><td class="num">'+s.pa.length+(s.pa.length<M.cap(s.r)?'<div class="small muted">short</div>':'')+'</td><td>'+stateBar(c)+'<div class="small muted">'+c.bad+' · '+c.warn+' · '+c.ok+'</div></td><td class="num">'+s.paWorked+'</td><td class="num">'+s.prospectsWorked+' / '+s.prospects.length+'</td><td class="num">'+s.johnWorked+' / '+s.john.length+'</td><td class="num">'+chf(sum(s.pa.map(a=>a.revenue)))+'</td></tr>';}).join('')+'</tbody></table></div>';
+  h+='<div class="panel"><h3>Untouched the longest <span class="n">priority accounts with revenue, no activity</span></h3><ul class="list">'+all.flatMap(s=>s.pa.filter(a=>a.status==='needswork'&&a.revenue).map(a=>({a,s}))).sort((x,y)=>(y.a.revenue||0)-(x.a.revenue||0)).slice(0,15).map(({a,s})=>'<li><span class="t"><b>'+esc(a.name)+'</b><div class="small muted">'+esc(s.r.name)+' · '+esc((a.list||'').replace(/Strategic (Accounts - |Direct \()?/g,'').replace(/\)$/,''))+'</div></span><span class="m">'+chf(a.revenue)+' · '+(a.lastActivity?'last '+fmtD(a.lastActivity):'never')+'</span></li>').join('')+'</ul></div>';
+  return h;
+}
+// ---------- FRIDAY ----------
+function friday(){
+  const all=S();
+  let h='<h2>Friday report · '+M.W.label+'</h2><p class="sub">Done and missed, per rep, from HubSpot. Goes to each rep and to the head of sales. <button class="btn light" onclick="window.print()">Print</button></p><div class="grid g2">';
+  all.forEach(s=>{ const done=[],missed=[]; if(s.tc.completed) done.push(pl(s.tc.completed,'task')+' completed'); const mc=s.ms.filter(m=>m.outcome==='COMPLETED').length; if(mc) done.push(pl(mc,'meeting')+' held'); if(s.paWorked) done.push(pl(s.paWorked,'priority account')+' worked'); if(s.prospectsWorked) done.push(s.prospectsWorked+' strategic prospects touched'); if(s.calls.thisWeek||s.emails.thisWeek) done.push(s.calls.thisWeek+' calls, '+s.emails.thisWeek+' emails logged'); s.wonWk.forEach(d=>done.push('Won: '+esc(d.name)+(d.amount?' ('+chf(d.amount)+')':'')));
+    if(s.tl.missed.length) missed.push(pl(s.tl.missed.length,'task')+' overdue'); else if(!M.tasks(s.r.id,'thisWeek').length&&s.tc.notStarted) missed.push(s.tc.notStarted+' tasks not started'); if(s.g.noOutcome.length) missed.push(pl(s.g.noOutcome.length,'meeting')+' with no outcome'); if(s.g.noType.length) missed.push(pl(s.g.noType.length,'meeting')+' with no type'); if(s.paNeeds) missed.push(pl(s.paNeeds,'priority account')+' not touched in 30 days'); if(s.prospects.length&&!s.prospectsWorked) missed.push('strategic prospects not touched'); if(s.past.n) missed.push(pl(s.past.n,'deal')+' with a close date in the past ('+chf(s.past.amt)+')'); if(s.stale.n) missed.push(pl(s.stale.n,'stale deal')); if(s.inbound.length) missed.push(pl(s.inbound.length,'inbound lead')+' overdue'); s.lostWk.forEach(d=>missed.push('Lost: '+esc(d.name)+' · '+esc(d.lostReason||'no reason given')));
+    h+='<div class="panel"><h3>'+esc(s.r.name)+' <span class="n">'+esc(s.r.team)+'</span>'+(comments[s.r.id]?'<span class="chip info">note from manager</span>':'')+'</h3><div class="grid g2"><div><div class="small" style="color:var(--ok);font-weight:700">DONE</div>'+(done.length?'<ul class="list">'+done.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'<div class="small muted">Nothing logged.</div>')+'</div><div><div class="small" style="color:var(--bad);font-weight:700">MISSED</div>'+(missed.length?'<ul class="list">'+missed.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'<div class="small muted">Nothing missed.</div>')+'</div></div>'+(comments[s.r.id]?'<div class="comment" style="margin-top:8px">'+esc(comments[s.r.id])+'</div>':'')+'</div>'; });
+  return h+'</div>';
+}
+// ---------- ROLLOUT ----------
+function rolloutPanel(){ const R=D.rollout||[]; const ok=v=>/yes|running|connected|set up|approved|pro/i.test(v||''); return '<div class="panel"><h3>Tool rollout <span class="n">who is connected to Claude, Microsoft 365 and HubSpot</span></h3><table><thead><tr><th>Person</th><th>Claude</th><th>Microsoft 365</th><th>HubSpot</th><th>Blocker</th></tr></thead><tbody>'+R.map(p=>'<tr><td><b>'+esc(p.name)+'</b><div class="small muted">'+esc(p.role||'')+'</div></td>'+[p.claude,p.m365,p.hubspot].map(v=>'<td><span class="chip '+(ok(v)?'ok':v?'warn':'bad')+'">'+esc(v||'not started')+'</span></td>').join('')+'<td class="small">'+esc(p.blocker||'')+'</td></tr>').join('')+'</tbody></table><p class="small muted">Daily nudge: one short ask per person in the pilot chat, posted by the agent owner.</p></div>'; }
+function rolloutView(){ return '<h2>Tool rollout</h2><p class="sub">The pilot stalls when connectors are not done.</p>'+rolloutPanel(); }
+// ---------- SETTINGS ----------
+function settingsView(){
+  const s=M.settings;
+  return '<h2>Settings and how it works</h2><p class="sub">Targets per rep per week, the roles, and where this runs.</p><div class="grid g2"><div class="panel"><h3>Targets</h3><table><tr><td>Calls per week</td><td><input type="number" id="st-calls" value="'+s.callsTarget+'"></td></tr><tr><td>Emails per week</td><td><input type="number" id="st-emails" value="'+s.emailsTarget+'"></td></tr><tr><td>Strategic prospects per BDM</td><td><input type="number" id="st-prospects" value="'+s.prospectsTarget+'"></td></tr></table><div style="margin-top:8px"><button class="btn" id="st-save">Save</button> <span class="small muted">Saved in this browser.</span></div></div>'+
+  '<div class="panel"><h3>Roles</h3><table class="small"><tr><td><b>Executive</b></td><td>Org KPIs, new business share, win rate, initiative health. No names needed.</td></tr><tr><td><b>Head of sales</b></td><td>Every initiative, every rep, needs-you list, scorecard, comments.</td></tr><tr><td><b>Rep</b></td><td>My initiatives, do-first list, manager note, reply to the agent.</td></tr><tr><td><b>Agent owner</b></td><td>Data quality, fields to add, rollout, refresh.</td></tr></table></div></div>'+
+  '<div class="panel"><h3>How it works</h3><ol class="small"><li><b>Strategy in:</b> the head of sales keeps the initiative list (name, why, measure, source, cadence, target).</li><li><b>Monday:</b> the agent reads HubSpot and builds each rep\'s week: the list, the do-first items, the gaps.</li><li><b>All week:</b> reps work. They can reply to the agent in plain words; it proposes the HubSpot change and waits for a yes.</li><li><b>Friday:</b> done and missed, per rep, to the rep and the head of sales. Comments ride along.</li><li><b>Monthly:</b> owner audit, forecast vs commitment, demo feedback trends, the 1:1 card: lost reasons and coaching points, not metrics.</li></ol><p class="small"><b>The one rule:</b> the agent reads, drafts and proposes. Nothing is sent and no HubSpot record changes without a human yes.</p><p class="small"><b>Where it runs:</b> today a local page from the shared folder (no cost). Next: inside the Sales Agent in Claude for replies (no hosting), then a hosted site with company sign-in when the team wants it on the web (hosting and API cost, warn first).</p></div>';
+}
+// ---------- render / bind ----------
+const views={overview,initiatives,scorecards,inbox,friday,meetings:meetingsView,pipeline:pipelineView,coverage:coverageView,rollout:rolloutView,settings:settingsView};
+const titles={overview:'Overview',initiatives:'Initiatives',scorecards:'Scorecards and leaderboard',inbox:'Agent inbox',friday:'Friday report',meetings:'Meetings intelligence',pipeline:'Pipeline and forecast',coverage:'Account coverage',rollout:'Tool rollout',settings:'Settings'};
+function render(){ document.querySelectorAll('aside a').forEach(a=>a.classList.toggle('on',a.dataset.v===view)); document.getElementById('title').textContent=titles[view]; app.innerHTML=views[view](); bind(app); window.scrollTo(0,0); }
+function bind(root){
+  root.querySelectorAll('[data-init]').forEach(el=>el.addEventListener('click',e=>{ if(e.target.closest('[data-rep]')) return; openInit(el.dataset.init); }));
+  root.querySelectorAll('[data-rep]').forEach(el=>el.addEventListener('click',e=>{ if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return; repId=el.dataset.rep; sel.value=repId; role='rep'; setRole(); view='overview'; document.getElementById('drawer').classList.remove('open'); render(); }));
+  root.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>{view=el.dataset.go;render();}));
+  root.querySelectorAll('input[data-c]').forEach(i=>i.addEventListener('change',()=>saveComment(i.dataset.c,i.value)));
+  root.querySelectorAll('select[data-demo]').forEach(i=>i.addEventListener('change',()=>{ratings[i.dataset.demo]=i.value;localStorage.setItem('mca.demos',JSON.stringify(ratings));}));
+  root.querySelectorAll('[data-yes]').forEach(b=>b.addEventListener('click',()=>{inboxState[b.dataset.yes]='yes';localStorage.setItem('mca.inbox',JSON.stringify(inboxState));render();}));
+  root.querySelectorAll('[data-skip]').forEach(b=>b.addEventListener('click',()=>{inboxState[b.dataset.skip]='skip';localStorage.setItem('mca.inbox',JSON.stringify(inboxState));render();}));
+  const sv=root.querySelector('#st-save'); if(sv) sv.onclick=()=>{M.saveSettings({callsTarget:+root.querySelector('#st-calls').value,emailsTarget:+root.querySelector('#st-emails').value,prospectsTarget:+root.querySelector('#st-prospects').value}); render();};
+  const send=root.querySelector('#send'); if(send) send.onclick=()=>{const v=root.querySelector('#reply').value.trim(); if(!v) return; root.querySelector('#reply-out').innerHTML='<div class="note"><b>Saved for the demo.</b> The agent would turn this into a HubSpot proposal in the inbox and wait for your yes. You wrote: “'+esc(v)+'”</div>';};
+}
+function setRole(){ document.querySelectorAll('.top .role button').forEach(b=>b.classList.toggle('on',b.dataset.r===role)); sel.style.display=role==='rep'?'':'none'; }
+document.querySelectorAll('aside a').forEach(a=>a.onclick=()=>{view=a.dataset.v;render();});
+document.querySelectorAll('.top .role button').forEach(b=>b.onclick=()=>{role=b.dataset.r;setRole();view='overview';render();});
+sel.onchange=()=>{repId=sel.value;render();};
+setRole(); render();
+})();
+</script></body></html>

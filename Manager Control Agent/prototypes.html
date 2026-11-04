@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Prototypes</title>
+<style>
+body{margin:0;background:#FAF8F7;color:#0C0C0D;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 20px}h1{font-size:26px;margin:0 0 4px}h1 span{color:#F8531C}.lead{color:#6b6b70;margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:#fff;border:1px solid #e6e2df;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.card h2{margin:0;font-size:17px}.tier{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#9a3a12;background:#FEF0EA;padding:2px 8px;border-radius:999px;align-self:flex-start;font-weight:700}
+.card p{margin:0;color:#444;font-size:14px}.card a.btn{margin-top:auto;display:inline-block;background:#0C0C0D;color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px;font-size:14px;text-align:center}
+.card ul{margin:0;padding-left:18px;font-size:13px;color:#444}
+h3{font-size:15px;margin:26px 0 8px}table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e6e2df;border-radius:12px;overflow:hidden;font-size:13px}
+th,td{padding:7px 9px;border-bottom:1px solid #e6e2df;text-align:left;vertical-align:top}th{font-size:11px;text-transform:uppercase;color:#6b6b70;background:#fbfaf9}
+.small{font-size:12px;color:#6b6b70}
+</style></head><body><main>
+<h1>Manager <span>Control</span> Agent: the prototypes</h1>
+<p class="lead">Three ways to run the same idea: the strategy becomes a weekly list per rep, HubSpot confirms what was done, and Friday says what was missed. All three open from this folder, read HubSpot only, and send nothing.</p>
+<div class="grid">
+ <div class="card"><span class="tier">Simple · ready now</span><h2>My Week</h2><p>One screen per rep with six things to do this week, ticked off by HubSpot, plus a manager note. A team grid for Sue. Fits a phone.</p><ul><li>Zero cost, no hosting: open from OneDrive or inside Claude</li><li>Could run next Monday</li></ul><a class="btn" href="weekly-list.html">Open My Week</a></div>
+ <div class="card"><span class="tier">Standard · the Monday 9 Nov demo</span><h2>Manager Control</h2><p>Sue's three priorities as three views: priority accounts, meetings and outcomes, pipeline. Manager table, rep drill down, Friday done and missed report.</p><ul><li>Everything from HubSpot, nothing typed by reps</li><li>Reply box shows how the two-way loop will work</li></ul><a class="btn" href="index.html">Open Manager Control</a></div>
+ <div class="card"><span class="tier">Advanced · the vision</span><h2>Sales Command Center</h2><p>The whole sales org in one place: 23 initiatives with owners, targets and sources; scorecards and leaderboard; meetings intelligence; forecast and hygiene; coverage; the agent's inbox of proposed HubSpot updates waiting for a yes; rollout; four roles from CEO to rep.</p><ul><li>What Interprefy could run in Q1</li><li>What could be sold to other sales teams</li></ul><a class="btn" href="command-center.html">Open Command Center</a></div>
+</div>
+<h3>Which to show on Monday</h3>
+<table><tr><th>Minute</th><th>Show</th><th>Say</th></tr>
+<tr><td>0 to 5</td><td>Manager Control, manager view</td><td>"Your three priorities, every rep, one screen, straight from HubSpot. Nothing is typed in."</td></tr>
+<tr><td>5 to 10</td><td>Click a rep, then Friday report</td><td>"This is what each rep sees, and this is what lands on Friday: done and missed."</td></tr>
+<tr><td>10 to 15</td><td>My Week</td><td>"The simplest version. Six things, ticked by HubSpot, your note at the bottom. This could run next week at no cost."</td></tr>
+<tr><td>15 to 25</td><td>Command Center, Head of sales then Executive</td><td>"Where this goes: every initiative you mentioned, tracked, with a queue of HubSpot updates the agent proposes and reps approve. This is what Oddmund sees."</td></tr>
+<tr><td>25 to 30</td><td>Decisions</td><td>Priority lists in HubSpot; where reps log in; which initiatives first; the two HubSpot fields to add.</td></tr></table>
+<p class="small">Data note: every page reads <code>data/live.js</code> if present (real HubSpot snapshot, never shared) and otherwise <code>data/sample.js</code> (made-up names).</p>
+</main></body></html>

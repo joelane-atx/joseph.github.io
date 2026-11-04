@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Week</title>
+<style>
+:root{--bg:#FAF8F7;--ink:#0C0C0D;--muted:#6b6b70;--line:#e6e2df;--brand:#F8531C;--ok:#1f8a4c;--ok-soft:#e6f4ec;--warn:#b7791f;--warn-soft:#fdf3e1;--bad:#c0392b;--bad-soft:#fdeceb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;top:0}
+h1{font-size:17px;margin:0}h1 span{color:var(--brand)}
+select,button{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{max-width:860px;margin:0 auto;padding:16px}
+.hello{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.hello h2{margin:0;font-size:22px}.score{font-size:13px;color:var(--muted)}
+.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.tick{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.ok{background:var(--ok-soft);color:var(--ok)}.warn{background:var(--warn-soft);color:var(--warn)}.bad{background:var(--bad-soft);color:var(--bad)}.na{background:#efedeb;color:#777}
+.item h3{margin:0;font-size:15px}.item .why{color:var(--muted);font-size:13px;margin:2px 0 6px}
+.bar{height:6px;background:#eee;border-radius:3px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ok)}
+.start{font-size:13px;margin:6px 0 0;padding:0;list-style:none}.start li{padding:3px 0;border-top:1px dashed var(--line)}
+.start li b{font-weight:600}.start .m{color:var(--muted)}
+.chip{font-size:11px;padding:1px 7px;border-radius:999px;font-weight:600;display:inline-block}
+.note{background:#e8eff9;border-left:3px solid #2b5fb8;padding:8px 10px;border-radius:6px;font-size:13px;margin:10px 0}
+textarea{width:100%;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;min-height:60px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}th{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;background:#fbfaf9}
+td.c{text-align:center;font-weight:700}tr.rep{cursor:pointer}tr.rep:hover td{background:#fff8f5}
+.c.ok{color:var(--ok)}.c.warn{color:var(--warn)}.c.bad{color:var(--bad)}.c.na{color:#aaa}
+.small{font-size:12px;color:var(--muted)}
+.comment{background:#fffbe6;border:1px solid #f1e3a0;border-radius:8px;padding:8px 10px;font-size:13px;margin-top:8px}
+@media print{header{display:none}}
+</style></head>
+<body>
+<header><h1>My <span>Week</span></h1><span class="small" id="snap"></span>
+<span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button id="b-team">Team</button><select id="rep"></select></span></header>
+<main id="app"></main>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script>
+<script>
+(function(){
+const M=window.MCA; const app=document.getElementById('app'); if(!M){app.textContent='No data file found.';return;}
+const {D,esc,fmtD,chf,pl}=M;
+document.getElementById('snap').textContent=(D.isSample?'Sample data':'HubSpot snapshot '+D.generated)+' · read only';
+const sel=document.getElementById('rep'); sel.innerHTML='<option value="">Pick a rep…</option>'+D.reps.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('');
+const comments=JSON.parse(localStorage.getItem('mca.comments')||'{}');
+const saveComment=(id,v)=>{comments[id]=v;localStorage.setItem('mca.comments',JSON.stringify(comments));};
+// The six things on every rep's Monday list, in plain words
+function items(s){
+  const I=[];
+  const paList=s.pa.filter(a=>a.status==='needswork').slice(0,5);
+  I.push({t:'Work your priority accounts',why:'Top '+M.cap(s.r)+' accounts. Any activity logged in HubSpot counts.',v:s.paWorked,n:s.pa.length?Math.min(M.cap(s.r),s.pa.length):0,state:s.pa.length?(s.paWorked>=Math.min(M.cap(s.r),s.pa.length)?'ok':s.paWorked>0?'warn':'bad'):'na',
+    start:s.pa.length?paList.map(a=>'<b>'+esc(a.name)+'</b> <span class="m">'+(a.lastActivity?'last touched '+fmtD(a.lastActivity):'never touched')+'</span>'):['<span class="m">No priority accounts marked in HubSpot yet. Mark your top '+M.cap(s.r)+' as Target Account.</span>']});
+  const pr=s.prospects;
+  I.push({t:'Touch your two strategic prospects',why:'One logged outreach or meeting on each, every week. Goal: a meeting a week.',v:s.prospectsWorked,n:pr.length?Math.min(2,pr.length):0,state:pr.length?(s.prospectsWorked>=Math.min(2,pr.length)?'ok':s.prospectsWorked?'warn':'bad'):'na',
+    start:pr.length?pr.slice(0,3).map(a=>'<b>'+esc(a.name)+'</b> <span class="m">'+(a.workedThisWeek?'touched this week':'not yet this week')+'</span>'):['<span class="m">No strategic prospects named for you yet.</span>']});
+  const ct=M.settings.callsTarget;
+  I.push({t:'Make your new business calls',why:'Target '+ct+' calls logged this week. Emails count too.',v:s.calls.thisWeek,n:ct,state:s.calls.thisWeek>=ct?'ok':s.calls.thisWeek>0?'warn':'bad',
+    start:[s.calls.thisWeek+' calls and '+s.emails.thisWeek+' emails this week <span class="m">('+s.calls.lastWeek+' calls, '+s.emails.lastWeek+' emails last week)</span>']});
+  const gaps=s.g.noType.length+s.g.noOutcome.length;
+  I.push({t:'Give every meeting a type and an outcome',why:'So demos and new business meetings are visible, and bad demos get flagged.',v:Math.max(0,(s.ms.length+s.lm.length)-gaps),n:s.ms.length+s.lm.length,state:(s.ms.length+s.lm.length)?(gaps===0?'ok':gaps<=2?'warn':'bad'):'na',
+    start:s.g.noType.concat(s.g.noOutcome.filter(m=>m.type)).slice(0,4).map(m=>'<b>'+esc(m.company||m.title)+'</b> <span class="m">'+fmtD(m.start)+' · '+(!m.type?'add type':'add outcome')+'</span>')});
+  const hyg=s.past.n+s.stale.n;
+  I.push({t:'Clean your pipeline',why:'No close dates in the past, no deal untouched for 30 days, a next task on every deal.',v:0,n:hyg,state:hyg===0?'ok':hyg<=5?'warn':'bad',
+    start:s.pastList.slice(0,3).map(d=>'<b>'+esc(d.name)+'</b> <span class="m">was due '+fmtD(d.close)+(d.amount?' · '+chf(d.amount):'')+'</span>').concat(s.staleList.slice(0,2).map(d=>'<b>'+esc(d.name)+'</b> <span class="m">no activity since '+fmtD(d.lastActivity)+'</span>')).concat(hyg>5?['<span class="m">'+pl(s.past.n,'deal')+' with a past close date and '+pl(s.stale.n,'stale deal')+' in total.</span>']:[])});
+  I.push({t:'Follow up every inbound lead on cadence',why:'Day 4 means a call, an email and a LinkedIn message.',v:0,n:s.inbound.length,state:s.inbound.length===0?'ok':s.inbound.length<=2?'warn':'bad',
+    start:s.inbound.slice(0,4).map(t=>'<b>'+esc(t.subject.replace(/^New Lead in: /,''))+'</b> <span class="m">due '+fmtD(t.due)+'</span>')});
+  return I;
+}
+const sym={ok:'✓',warn:'◐',bad:'✗',na:'–'};
+function renderRep(id){
+  const r=M.repById[id]; if(!r){app.innerHTML='<p class="small">Pick a rep above, or Team.</p>';return;}
+  const s=M.repSummary(r), I=items(s); const done=I.filter(i=>i.state==='ok').length;
+  let h='<div class="hello"><div><h2>'+esc(r.name)+', your week</h2><div class="small">'+M.W.label+' · the agent ticks these from HubSpot, you do not</div></div><div class="score">'+done+' of '+I.length+' done so far</div></div>';
+  I.forEach(i=>{ h+='<div class="item"><div class="tick '+i.state+'">'+sym[i.state]+'</div><div><h3>'+i.t+'</h3><div class="why">'+i.why+'</div>'+(i.n?'<div class="bar"><i style="width:'+Math.min(100,M.pct(i.v,i.n))+'%;background:'+(i.state==='ok'?'var(--ok)':i.state==='warn'?'var(--warn)':'var(--bad)')+'"></i></div>':'')+(i.start.length?'<ul class="start">'+i.start.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'')+'</div></div>'; });
+  const c=comments[id]||'';
+  h+='<div class="item"><div class="tick na">S</div><div><h3>From your manager</h3>'+(c?'<div class="comment">'+esc(c)+'</div>':'<div class="why">No comment this week.</div>')+'<div class="why" style="margin-top:8px">Reply here, for example "Google: demo booked 18 Nov". The agent will update HubSpot after you say yes.</div><textarea placeholder="Your reply"></textarea><div class="small">Prototype: nothing is sent.</div></div></div>';
+  if(s.wonWk.length) h+='<div class="note">Nice one: '+s.wonWk.map(d=>'<b>'+esc(d.name)+'</b>'+(d.amount?' ('+chf(d.amount)+')':'')).join(', ')+' closed won this week.</div>';
+  app.innerHTML=h;
+}
+function renderTeam(){
+  const names=['Priority accounts','2 prospects','Calls','Meetings complete','Pipeline clean','Inbound on cadence'];
+  let h='<div class="hello"><div><h2>The team this week</h2><div class="small">'+M.W.label+' · ✓ done · ◐ partly · ✗ not yet · – nothing to measure</div></div></div>';
+  h+='<table><thead><tr><th>Rep</th>'+names.map(n=>'<th style="text-align:center">'+n+'</th>').join('')+'<th>Score</th><th>Manager comment</th></tr></thead><tbody>';
+  D.reps.forEach(r=>{ const s=M.repSummary(r), I=items(s); const done=I.filter(i=>i.state==='ok').length;
+    h+='<tr class="rep" data-rep="'+r.id+'"><td><b>'+esc(r.name)+'</b><div class="small">'+esc(r.team)+'</div></td>'+I.map(i=>'<td class="c '+i.state+'" title="'+esc(i.t)+'">'+sym[i.state]+'</td>').join('')+'<td><b>'+done+'</b>/'+I.length+'</td><td><input data-c="'+r.id+'" value="'+esc(comments[r.id]||'')+'" placeholder="Add a note for '+esc(r.name.split(' ')[0])+'" style="width:100%;font:inherit;font-size:12px;padding:4px 6px;border:1px solid var(--line);border-radius:6px"></td></tr>'; });
+  h+='</tbody></table><p class="small">Click a name to see their list. Comments are saved in this browser only (prototype).</p>';
+  app.innerHTML=h;
+  app.querySelectorAll('tr.rep').forEach(tr=>tr.addEventListener('click',e=>{ if(e.target.tagName==='INPUT') return; sel.value=tr.dataset.rep; show(tr.dataset.rep); }));
+  app.querySelectorAll('input[data-c]').forEach(i=>i.addEventListener('change',()=>saveComment(i.dataset.c,i.value)));
+}
+function show(id){ document.getElementById('b-team').classList.toggle('on',!id); if(id) renderRep(id); else renderTeam(); }
+sel.onchange=()=>show(sel.value); document.getElementById('b-team').onclick=()=>{sel.value='';show('');};
+show('');
+})();
+</script></body></html>

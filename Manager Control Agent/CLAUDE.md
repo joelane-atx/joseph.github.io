@@ -26,7 +26,10 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 
 ## Files
 
-- `index.html`: the prototype. Open it in a browser, no server needed. Three views: Manager, Rep, Friday report.
+- `prototypes.html`: start here, links the three prototypes and the demo script.
+- `weekly-list.html`: simple prototype, My Week. `command-center.html`: advanced prototype, Sales Command Center. `app/common.js`: shared logic. `data/initiatives.js`: the initiative catalogue (no personal data).
+- `IDEAS.md`: every initiative, how it is tracked, login options, the ladder, what to build next.
+- `index.html`: the standard prototype. Open it in a browser, no server needed. Three views: Manager, Rep, Friday report.
 - `data/live.js`: snapshot of HubSpot for the real reps (not committed). The page uses it when present.
 - `data/sample.js`: made-up data so the page always opens. Used only when `live.js` is missing.
 - `README.md`: how to open it, how to refresh the data, what to show Sue, what is next.

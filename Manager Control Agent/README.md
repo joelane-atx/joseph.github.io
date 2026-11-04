@@ -1,10 +1,13 @@
-# Manager Control Agent: prototype for Sue
+# Manager Control Agent: prototypes for Sue
 
 Built 4 Nov 2026 for the Joe / Sue meeting on Mon 9 Nov 2026, 8:00 CST.
 
 ## Open it
 
-- Double click `index.html`. It opens in the browser, nothing to install, no internet needed.
+- Start at `prototypes.html`: it links the three prototypes and has the Monday demo script.
+- Simple: `weekly-list.html` (My Week). Standard: `index.html` (Manager Control). Advanced: `command-center.html` (Sales Command Center).
+- Ideas and the full initiative list: `IDEAS.md`.
+- Double click any page. It opens in the browser, nothing to install, no internet needed.
 - Top right: Manager view (Sue), Rep view (pick a rep), Friday report (print or save as PDF).
 - If `data/live.js` is in the `data` folder you see real HubSpot numbers. If not, the page shows made-up sample data and says so in the header.
 
