@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manager Control Agent</title>
+<style>
+:root{--bg:#FAF8F7;--card:#fff;--ink:#0C0C0D;--muted:#6b6b70;--line:#e6e2df;--brand:#F8531C;--brand-soft:#FEF0EA;--ok:#1f8a4c;--ok-soft:#e6f4ec;--warn:#b7791f;--warn-soft:#fdf3e1;--bad:#c0392b;--bad-soft:#fdeceb;--info:#2b5fb8;--info-soft:#e8eff9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header h1{font-size:17px;margin:0;letter-spacing:.2px}
+header h1 span{color:var(--brand)}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--brand-soft);color:#9a3a12;font-weight:600;white-space:nowrap}
+.badge.grey{background:#efedeb;color:#444}
+nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;align-items:center}
+nav button,nav select{font:inherit;padding:6px 12px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer}
+nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{padding:16px 20px;max-width:1500px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card h2{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.card .big{font-size:26px;font-weight:700;line-height:1.1}
+.card .sub{color:var(--muted);font-size:12px;margin-top:4px}
+.card .flags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.bad{background:var(--bad-soft);color:var(--bad)}.chip.info{background:var(--info-soft);color:var(--info)}.chip.grey{background:#efedeb;color:#555}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:#fbfaf9;white-space:nowrap}
+th.grp{background:var(--brand-soft);color:#9a3a12;text-align:center;border-left:1px solid var(--line)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.sep,th.sep{border-left:1px solid var(--line)}
+tr.rep{cursor:pointer}tr.rep:hover td{background:#fff8f5}
+tr.team td{background:#f4f2f0;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#555}
+.muted{color:var(--muted)}.small{font-size:12px}
+.arrow{font-size:11px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:1000px){.grid2,.grid3{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.panel h3{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel h3 .n{color:var(--muted);font-weight:400;font-size:13px}
+.list{list-style:none;margin:0;padding:0}
+.list li{padding:6px 0;border-bottom:1px dashed var(--line);display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.list li:last-child{border-bottom:0}
+.list .t{flex:1;min-width:180px}
+.list .m{color:var(--muted);font-size:12px;white-space:nowrap}
+.repname{font-size:20px;font-weight:700;margin:0}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+textarea{width:100%;min-height:70px;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px}
+.btn{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}
+.btn.light{background:#fff;color:var(--ink)}
+.note{background:var(--info-soft);border-left:3px solid var(--info);padding:8px 10px;border-radius:6px;font-size:12px;margin-top:8px}
+details{margin-top:14px;font-size:12px;color:var(--muted)}details summary{cursor:pointer;color:var(--ink)}
+.report .rep-card{page-break-inside:avoid}
+@media print{header,nav,.toolbar,.noprint{display:none!important}body{background:#fff}main{padding:0}.panel{border:0;padding:0 0 10px}}
+.empty{color:var(--muted);font-style:italic}
+.more{color:var(--info);cursor:pointer;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Manager <span>Control</span> Agent</h1>
+  <span class="badge">Prototype</span>
+  <span class="badge grey" id="snap"></span>
+  <nav>
+    <button id="nav-manager" class="on">Manager view</button>
+    <button id="nav-rep">Rep view</button>
+    <select id="rep-select" title="Choose a rep"></select>
+    <button id="nav-friday">Friday report</button>
+  </nav>
+</header>
+<main id="app"></main>
+<script src="data/live.js"></script>
+<script src="data/sample.js"></script>
+<script>
+(function(){
+const D = window.MCA_DATA;
+const app = document.getElementById('app');
+if(!D){ app.innerHTML='<div class="panel">No data found. Put a data file at <b>data/live.js</b> or <b>data/sample.js</b>.</div>'; return; }
+document.getElementById('snap').textContent = (D.isSample?'Sample data, made up':'HubSpot snapshot '+D.generated)+' · read only';
+
+// ---------- helpers ----------
+const today = D.today, W = D.week, LW = D.lastWeek;
+const dayMs = 86400000;
+const toDate = s => s ? new Date(s.slice(0,10)+'T00:00:00Z') : null;
+const daysAgo = s => { const d=toDate(s); return d? Math.round((toDate(today)-d)/dayMs) : null; };
+const inRange = (s,a,b) => s && s.slice(0,10)>=a && s.slice(0,10)<=b;
+const chf = n => n==null? '' : 'CHF '+(n>=1000? (n/1000).toFixed(n>=100000?0:1)+'k' : Math.round(n));
+const fmtD = s => { const d=toDate(s); if(!d) return ''; return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}); };
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const by = (a,k) => a.filter(x=>x.owner===k);
+const sum = a => a.reduce((s,x)=>s+(x||0),0);
+const repById = Object.fromEntries(D.reps.map(r=>[r.id,r]));
+const cap = r => r.team==='SAM'?10:20;
+
+// priority accounts for a rep: target accounts + the manager's lists owned by that rep
+function priority(repId){
+  const list = D.accounts.filter(a=>a.owner===repId && (a.target || /Top|Strategic Prospects/.test(a.list||'')));
+  list.forEach(a=>{
+    const d = daysAgo(a.lastActivity);
+    a.status = a.openDeals>0 ? 'buying' : (d!=null && d<=30 ? 'intouch' : 'needswork');
+    a.workedThisWeek = inRange(a.lastActivity, W.start, W.end);
+  });
+  const order={needswork:0,intouch:1,buying:2};
+  return list.sort((x,y)=> order[x.status]-order[y.status] || (y.revenue||0)-(x.revenue||0));
+}
+function meetings(repId, range){ return by(D.meetings,repId).filter(m=>inRange(m.start,range.start,range.end)); }
+function meetingGaps(ms){
+  const past = ms.filter(m=>m.start.slice(0,10)<=today);
+  return {
+    noType: ms.filter(m=>!m.type),
+    noOutcome: past.filter(m=>!m.outcome || m.outcome==='SCHEDULED'),
+    noRecording: past.filter(m=>!m.recording && m.outcome!=='CANCELED'),
+  };
+}
+function tasks(repId, which){ return by(D.tasks[which],repId); }
+function taskSplit(list){
+  return { done:list.filter(t=>t.status==='COMPLETED'), missed:list.filter(t=>t.status!=='COMPLETED' && t.due<today), open:list.filter(t=>t.status!=='COMPLETED' && t.due>=today) };
+}
+const cnt = (obj,k) => (obj&&obj[k])||{n:0,amt:0};
+function repSummary(r){
+  const pa = priority(r.id);
+  const ms = meetings(r.id,W), lm = meetings(r.id,LW), g = meetingGaps(ms.concat(lm));
+  const tc = D.taskCounts.thisWeek[r.id]||{completed:0,notStarted:0};
+  const tl = taskSplit(tasks(r.id,'thisWeek'));
+  const calls = D.activity.calls[r.id]||{thisWeek:0,lastWeek:0}, emails = D.activity.emails[r.id]||{thisWeek:0,lastWeek:0};
+  const won = by(D.deals.won,r.id), lost = by(D.deals.lost,r.id);
+  return { r, pa, paWorked: pa.filter(a=>a.workedThisWeek).length, paNeeds: pa.filter(a=>a.status==='needswork').length,
+    ms, lm, g, tc, tl, calls, emails, won, lost,
+    due: cnt(D.dealCounts.due,r.id), past: cnt(D.dealCounts.past,r.id), stale: cnt(D.dealCounts.stale,r.id), open: cnt(D.dealCounts.open,r.id) };
+}
+const trend = (a,b) => b===0 && a===0 ? '' : a>b ? '<span class="arrow">▲ '+b+' last wk</span>' : a<b ? '<span class="arrow">▼ '+b+' last wk</span>' : '<span class="arrow">= last wk</span>';
+const pl = (n,w) => n+' '+w+(n===1?'':'s');
+const flag = (n,label,cls) => n>0 ? '<span class="chip '+(cls||'bad')+'">'+n+' '+label+'</span>' : '';
+
+// ---------- manager view ----------
+function renderManager(){
+  const S = D.reps.map(repSummary);
+  const tot = k => sum(S.map(s=>typeof s[k]==='number'?s[k]:0));
+  const totDue = sum(S.map(s=>s.due.n)), totDueAmt = sum(S.map(s=>s.due.amt));
+  const totPast = sum(S.map(s=>s.past.n)), totStale = sum(S.map(s=>s.stale.n));
+  const allMs = S.flatMap(s=>s.ms), allGaps = {noType:sum(S.map(s=>s.g.noType.length)), noOutcome:sum(S.map(s=>s.g.noOutcome.length)), noRec:sum(S.map(s=>s.g.noRecording.length))};
+  const paTotal = sum(S.map(s=>s.pa.length)), paWorked = tot('paWorked'), paNeeds = tot('paNeeds');
+  let h = '<div class="cards">';
+  h += '<div class="card"><h2>1 · Priority accounts</h2><div class="big">'+paWorked+' <span class="muted" style="font-size:14px">of '+paTotal+' worked this week</span></div><div class="sub">Top 20 per BDM, top 10 per SAM, from HubSpot lists</div><div class="flags">'+flag(paNeeds,'not touched in 30 days')+'</div></div>';
+  h += '<div class="card"><h2>2 · Meetings and outcomes</h2><div class="big">'+allMs.length+' <span class="muted" style="font-size:14px">meetings this week</span></div><div class="sub">'+sum(S.map(s=>s.lm.length))+' last week · '+sum(S.map(s=>s.won.length))+' won, '+sum(S.map(s=>s.lost.length))+' lost since '+fmtD(D.lostSince||'2026-10-05')+'</div><div class="flags">'+flag(allGaps.noType,'no meeting type','warn')+flag(allGaps.noOutcome,'no outcome','warn')+flag(allGaps.noRec,'no recording in HubSpot','grey')+'</div></div>';
+  h += '<div class="card"><h2>3 · Pipeline</h2><div class="big">'+chf(totDueAmt)+' <span class="muted" style="font-size:14px">due to close by 31 Dec ('+totDue+' deals)</span></div><div class="sub">Open deals, live stages only</div><div class="flags">'+flag(totPast,'close date in the past')+flag(totStale,'stale 30+ days','warn')+'</div></div>';
+  h += '</div>';
+  h += '<table><thead><tr><th>Rep</th><th class="grp" colspan="2">Priority accounts</th><th class="grp" colspan="2">Meetings</th><th class="grp" colspan="3">New business activity</th><th class="grp" colspan="3">Pipeline</th></tr>';
+  h += '<tr><th></th><th class="num sep">Worked / list</th><th class="num">Not touched 30d</th><th class="num sep">This week</th><th>Gaps</th><th class="num sep">Calls</th><th class="num">Emails</th><th class="num">Tasks done / missed</th><th class="num sep">Due by 31 Dec</th><th class="num">Past close</th><th class="num">Stale</th></tr></thead><tbody>';
+  let lastTeam='';
+  S.forEach(s=>{
+    if(s.r.team!==lastTeam){ lastTeam=s.r.team; h+='<tr class="team"><td colspan="11">'+(lastTeam==='BDM'?'Business development managers':'Strategic account managers')+'</td></tr>'; }
+    const gaps = flag(s.g.noType.length,'type','warn')+flag(s.g.noOutcome.length,'outcome','warn')+flag(s.g.noRecording.length,'rec','grey');
+    h += '<tr class="rep" data-rep="'+s.r.id+'"><td><b>'+esc(s.r.name)+'</b><div class="small muted">'+esc(s.r.region||s.r.team)+'</div></td>';
+    h += '<td class="num sep">'+s.paWorked+' / '+s.pa.length+(s.pa.length<cap(s.r)?'<div class="small muted">list short of '+cap(s.r)+'</div>':'')+'</td>';
+    h += '<td class="num">'+(s.paNeeds?'<span class="chip bad">'+s.paNeeds+'</span>':'<span class="chip ok">0</span>')+'</td>';
+    h += '<td class="num sep">'+s.ms.length+' <div class="small muted">'+s.lm.length+' last wk</div></td><td>'+(gaps||'<span class="chip ok">complete</span>')+'</td>';
+    h += '<td class="num sep">'+s.calls.thisWeek+'<div>'+trend(s.calls.thisWeek,s.calls.lastWeek)+'</div></td><td class="num">'+s.emails.thisWeek+'<div>'+trend(s.emails.thisWeek,s.emails.lastWeek)+'</div></td>';
+    h += '<td class="num">'+s.tc.completed+' / '+s.tc.notStarted+'</td>';
+    h += '<td class="num sep">'+s.due.n+'<div class="small muted">'+chf(s.due.amt)+'</div></td><td class="num">'+(s.past.n?'<span class="chip bad">'+s.past.n+'</span>':'<span class="chip ok">0</span>')+'</td><td class="num">'+(s.stale.n?'<span class="chip warn">'+s.stale.n+'</span>':'<span class="chip ok">0</span>')+'</td></tr>';
+  });
+  h += '</tbody></table>';
+  h += '<p class="small muted" style="margin:8px 0 0">Click a rep for their view. Numbers come straight from HubSpot; nothing here is typed in by the rep.</p>';
+  h += howCounted();
+  app.innerHTML = h;
+  app.querySelectorAll('tr.rep').forEach(tr=>tr.addEventListener('click',()=>showRep(tr.dataset.rep)));
+}
+
+// ---------- rep view ----------
+function li(main, meta, chip){ return '<li><span class="t">'+main+'</span>'+(chip||'')+(meta?'<span class="m">'+meta+'</span>':'')+'</li>'; }
+function dealLi(d, extra){ return li('<b>'+esc(d.name)+'</b><div class="small muted">'+esc(d.pipeline)+' · '+esc(d.stage)+(d.nextStep?' · next: '+esc(d.nextStep.slice(0,90)):'')+'</div>', (d.amount?chf(d.amount)+' · ':'')+extra); }
+function showList(items, fn, max, id){
+  if(!items.length) return '<div class="empty">Nothing here.</div>';
+  const first = items.slice(0,max).map(fn).join('');
+  const rest = items.length>max ? '<li class="more" onclick="this.previousElementSibling&&0;this.parentNode.querySelectorAll(\'.hid\').forEach(e=>e.style.display=\'flex\');this.remove()">Show '+(items.length-max)+' more</li>' : '';
+  const hidden = items.length>max ? items.slice(max).map(x=>fn(x).replace('<li>','<li class="hid" style="display:none">')).join('') : '';
+  return '<ul class="list">'+first+rest+hidden+'</ul>';
+}
+function renderRep(repId){
+  const r = repById[repId]; if(!r){ app.innerHTML='<div class="panel empty">Choose a rep.</div>'; return; }
+  const s = repSummary(r);
+  const statusChip = a => a.status==='buying'?'<span class="chip ok">Buying · '+a.openDeals+' open</span>':a.status==='intouch'?'<span class="chip info">In touch</span>':'<span class="chip bad">Needs work</span>';
+  let h = '<div class="toolbar"><p class="repname">'+esc(r.name)+'</p><span class="badge grey">'+esc(r.team)+(r.region?' · '+esc(r.region):'')+'</span><span class="muted small">'+W.label+'</span><button class="btn light" id="back">← Manager view</button></div>';
+  // 1 priority accounts
+  h += '<div class="panel"><h3>1 · Your priority accounts <span class="n">'+s.paWorked+' of '+s.pa.length+' worked this week · '+s.paNeeds+' not touched in 30 days</span></h3>';
+  if(s.pa.length<cap(r)) h += '<div class="note">HubSpot has '+s.pa.length+' accounts on your list. The target is '+cap(r)+'. Mark the rest as Target Account in HubSpot and they appear here.</div>';
+  h += showList(s.pa, a=>li('<b>'+esc(a.name)+'</b><div class="small muted">'+esc([a.list&&a.list.replace(/Strategic (Accounts - |Direct \()?/g,'').replace(/\)$/,''),a.tier,a.country].filter(Boolean).join(' · '))+'</div>', (a.lastActivity?'last activity '+fmtD(a.lastActivity)+' ('+daysAgo(a.lastActivity)+'d)':'no activity logged')+(a.revenue?' · '+chf(a.revenue)+' lifetime':''), statusChip(a)), cap(r)) + '</div>';
+  // 2 meetings
+  const mChip = m => { const f=[]; if(!m.type) f.push('<span class="chip warn">add type</span>'); if(m.start.slice(0,10)<=today && (!m.outcome||m.outcome==='SCHEDULED')) f.push('<span class="chip warn">add outcome</span>'); else if(m.outcome) f.push('<span class="chip '+(m.outcome==='COMPLETED'?'ok':'grey')+'">'+m.outcome.toLowerCase()+'</span>'); if(m.start.slice(0,10)<=today && !m.recording && m.outcome!=='CANCELED') f.push('<span class="chip grey">no recording</span>'); return f.join(' '); };
+  const mLi = m => li('<b>'+esc(m.company||m.title)+'</b><div class="small muted">'+esc(m.title)+(m.type?' · '+esc(m.type):'')+'</div>', fmtD(m.start), mChip(m));
+  h += '<div class="grid2"><div class="panel"><h3>2 · Meetings <span class="n">'+s.ms.length+' this week · '+s.lm.length+' last week</span></h3>';
+  h += '<div class="small muted" style="margin-bottom:6px">This week</div>'+showList(s.ms.slice().sort((a,b)=>a.start<b.start?-1:1), mLi, 12);
+  h += '<div class="small muted" style="margin:10px 0 6px">Last week</div>'+showList(s.lm.slice().sort((a,b)=>a.start<b.start?-1:1), mLi, 6)+'</div>';
+  h += '<div class="panel"><h3>Won and lost <span class="n">since '+fmtD(D.lostSince||'2026-10-05')+'</span></h3>';
+  h += '<div class="small muted" style="margin-bottom:6px">Won ('+s.won.length+')</div>'+showList(s.won, d=>dealLi(d,fmtD(d.close)), 5);
+  h += '<div class="small muted" style="margin:10px 0 6px">Lost ('+s.lost.length+')</div>'+showList(s.lost, d=>li('<b>'+esc(d.name)+'</b><div class="small muted">'+esc(d.lostReason||'no reason given')+(d.competitor?' · lost to '+esc(d.competitor):'')+'</div>', (d.amount?chf(d.amount)+' · ':'')+fmtD(d.close), d.lostReason?'':'<span class="chip warn">add reason</span>'), 5)+'</div></div>';
+  // 3 pipeline
+  const due = by(D.deals.due,r.id).filter(d=>d.close>=today).sort((a,b)=>(b.amount||0)-(a.amount||0));
+  const past = by(D.deals.past,r.id).sort((a,b)=>(b.amount||0)-(a.amount||0));
+  const stale = by(D.deals.stale,r.id).sort((a,b)=>(b.amount||0)-(a.amount||0));
+  h += '<div class="grid3">';
+  h += '<div class="panel"><h3>3 · Due to close by 31 Dec <span class="n">'+s.due.n+' deals · '+chf(s.due.amt)+'</span></h3>'+showList(due, d=>dealLi(d,'close '+fmtD(d.close)+(d.lastActivity?' · activity '+daysAgo(d.lastActivity)+'d ago':'')), 8)+(s.due.n>due.length?'<div class="small muted">Showing the largest '+due.length+' of '+s.due.n+'.</div>':'')+'</div>';
+  h += '<div class="panel"><h3>Close date in the past <span class="n">'+s.past.n+' deals · '+chf(s.past.amt)+'</span></h3>'+showList(past, d=>dealLi(d,'was due '+fmtD(d.close)), 8)+(s.past.n>past.length?'<div class="small muted">Showing the largest '+past.length+' of '+s.past.n+'. Move the date or close the deal.</div>':'')+'</div>';
+  h += '<div class="panel"><h3>Stale, no activity since '+fmtD(D.staleBefore)+' <span class="n">'+s.stale.n+' deals · '+chf(s.stale.amt)+'</span></h3>'+showList(stale, d=>dealLi(d,'last activity '+fmtD(d.lastActivity)+(d.nextActivity?' · next '+fmtD(d.nextActivity):' · no next task')), 8)+'</div>';
+  h += '</div>';
+  // this week's list + reply
+  const T = s.tl;
+  h += '<div class="grid2"><div class="panel"><h3>Your list this week <span class="n">'+T.done.length+' done · '+T.missed.length+' overdue · '+T.open.length+' still to do</span></h3>';
+  if(!tasks(r.id,'thisWeek').length && s.tc.notStarted+s.tc.completed>0) h += '<div class="note">HubSpot shows '+s.tc.completed+' done and '+s.tc.notStarted+' not started this week. The task list itself is not loaded for this rep in the prototype.</div>';
+  const tLi = t => li(esc(t.subject)+'<div class="small muted">'+esc(t.type.replace(/_/g,' ').toLowerCase())+'</div>', 'due '+fmtD(t.due), t.status==='COMPLETED'?'<span class="chip ok">done</span>':(t.due<today?'<span class="chip bad">overdue</span>':'<span class="chip grey">to do</span>'));
+  h += showList(T.missed.concat(T.open,T.done), tLi, 10)+'</div>';
+  h += '<div class="panel"><h3>Reply to the agent</h3><p class="small muted">Tell the agent what happened, for example "Spoke to Google, demo booked for 18 Nov" or "Close date for Acme moves to January". In the pilot the agent drafts the HubSpot update and asks you to confirm before anything changes.</p><textarea id="reply" placeholder="Type your update here"></textarea><div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="btn" id="send">Send to agent</button><span class="small muted">Prototype: nothing is sent and HubSpot is not changed.</span></div><div id="reply-out"></div></div></div>';
+  h += howCounted();
+  app.innerHTML = h;
+  document.getElementById('back').onclick = ()=>setView('manager');
+  document.getElementById('send').onclick = ()=>{ const v=document.getElementById('reply').value.trim(); if(!v) return; document.getElementById('reply-out').innerHTML='<div class="note"><b>Saved for the demo.</b> The agent would read this, propose the HubSpot change (note, task, close date or stage) and wait for your yes. Your text: “'+esc(v)+'”</div>'; };
+}
+
+// ---------- friday report ----------
+function renderFriday(){
+  const S = D.reps.map(repSummary);
+  let h = '<div class="toolbar noprint"><p class="repname">Friday report · '+W.label+'</p><span class="muted small">What was done and what was missed, per rep, from HubSpot</span><button class="btn light" onclick="window.print()">Print or save as PDF</button></div>';
+  const totDone = sum(S.map(s=>s.tc.completed)), totMissed = sum(S.map(s=>s.tl.missed.length)), totWon = sum(S.map(s=>s.won.filter(d=>inRange(d.close,W.start,W.end)).length));
+  h += '<div class="cards"><div class="card"><h2>Done</h2><div class="big">'+totDone+' tasks</div><div class="sub">'+sum(S.map(s=>s.ms.filter(m=>m.outcome==='COMPLETED').length))+' meetings completed · '+totWon+' deals won this week</div></div>';
+  h += '<div class="card"><h2>Missed</h2><div class="big">'+totMissed+' overdue tasks</div><div class="sub">'+sum(S.map(s=>s.g.noOutcome.length))+' meetings without an outcome · '+sum(S.map(s=>s.paNeeds))+' priority accounts not touched in 30 days</div></div>';
+  h += '<div class="card"><h2>Pipeline to fix</h2><div class="big">'+sum(S.map(s=>s.past.n))+' deals</div><div class="sub">with a close date in the past · '+sum(S.map(s=>s.stale.n))+' stale deals</div></div></div>';
+  h += '<div class="report grid2">';
+  S.forEach(s=>{
+    const wonWk = s.won.filter(d=>inRange(d.close,W.start,W.end)), lostWk = s.lost.filter(d=>inRange(d.close,W.start,W.end));
+    const done = [], missed = [];
+    if(s.tc.completed) done.push(pl(s.tc.completed,'task')+' completed');
+    const mc = s.ms.filter(m=>m.outcome==='COMPLETED').length; if(mc) done.push(pl(mc,'meeting')+' held'+(s.ms.filter(m=>m.type&&/demo/i.test(m.type)).length?' ('+s.ms.filter(m=>m.type&&/demo/i.test(m.type)).length+' demos)':''));
+    if(s.paWorked) done.push(pl(s.paWorked,'priority account')+' worked');
+    if(s.calls.thisWeek||s.emails.thisWeek) done.push(s.calls.thisWeek+' calls and '+s.emails.thisWeek+' emails logged');
+    wonWk.forEach(d=>done.push('Won: '+esc(d.name)+(d.amount?' ('+chf(d.amount)+')':'')));
+    if(s.tl.missed.length) missed.push(pl(s.tl.missed.length,'task')+' overdue'+(s.tl.missed.length<=3?': '+s.tl.missed.map(t=>esc(t.subject)).join('; '):''));
+    else if(!tasks(s.r.id,'thisWeek').length && s.tc.notStarted) missed.push(s.tc.notStarted+' tasks not started');
+    if(s.g.noOutcome.length) missed.push(pl(s.g.noOutcome.length,'meeting')+' with no outcome recorded');
+    if(s.g.noType.length) missed.push(pl(s.g.noType.length,'meeting')+' with no type');
+    if(s.paNeeds) missed.push(pl(s.paNeeds,'priority account')+' not touched in 30 days');
+    if(s.past.n) missed.push(pl(s.past.n,'deal')+' with a close date in the past ('+chf(s.past.amt)+')');
+    if(s.stale.n) missed.push(pl(s.stale.n,'stale deal')+', no activity since '+fmtD(D.staleBefore));
+    lostWk.forEach(d=>missed.push('Lost: '+esc(d.name)+(d.lostReason?' · '+esc(d.lostReason):' · no reason given')));
+    h += '<div class="panel rep-card"><h3>'+esc(s.r.name)+' <span class="n">'+esc(s.r.team)+(s.r.region?' · '+esc(s.r.region):'')+'</span></h3>';
+    h += '<div class="grid2"><div><div class="small" style="color:var(--ok);font-weight:700;margin-bottom:4px">DONE</div>'+(done.length?'<ul class="list">'+done.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'<div class="empty">Nothing logged in HubSpot this week.</div>')+'</div>';
+    h += '<div><div class="small" style="color:var(--bad);font-weight:700;margin-bottom:4px">MISSED</div>'+(missed.length?'<ul class="list">'+missed.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'<div class="empty">Nothing missed.</div>')+'</div></div></div>';
+  });
+  h += '</div>';
+  h += '<p class="small muted">Pilot plan: this report goes to each rep and to the manager on Friday, and each rep can reply to the agent to correct or update it.</p>';
+  app.innerHTML = h;
+}
+
+function howCounted(){
+  return '<details><summary>How this is counted</summary><ul>'+
+  '<li><b>Priority accounts</b>: companies the rep owns that are marked Target Account in HubSpot, or sit on the John Top 25 or Strategic Prospects lists. Worked = any activity logged this week. Not touched = no activity in 30 days. Buying = has an open deal.</li>'+
+  '<li><b>Meetings</b>: HubSpot meetings assigned to the rep, by start date. Gaps: no meeting type, past meeting with no outcome, or no recording attached in HubSpot (Teams and Otter recordings are not counted yet).</li>'+
+  '<li><b>New business activity</b>: calls and emails logged in HubSpot this week against last week. Tasks: done and not done by due date this week.</li>'+
+  '<li><b>Pipeline</b>: open deals in live stages only (disqualified and uncontactable are left out). Due = close date 4 Nov to 31 Dec. Past = close date before today. Stale = no activity logged since '+fmtD(D.staleBefore)+' and no close date in the past.</li>'+
+  '<li>Meeting gaps count this week and last week together. Lists show the largest deals per bucket. Counts come from HubSpot totals. '+(D.notes||[]).map(esc).join(' ')+'</li></ul></details>';
+}
+
+// ---------- nav ----------
+const sel = document.getElementById('rep-select');
+sel.innerHTML = '<option value="">Choose a rep…</option>'+D.reps.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('');
+let view='manager', currentRep='';
+function setView(v, rep){
+  view=v; if(rep!==undefined) currentRep=rep;
+  ['manager','rep','friday'].forEach(k=>document.getElementById('nav-'+k).classList.toggle('on',k===v));
+  if(v==='manager') renderManager(); else if(v==='rep') renderRep(currentRep); else renderFriday();
+  window.scrollTo(0,0);
+}
+function showRep(id){ sel.value=id; setView('rep',id); }
+document.getElementById('nav-manager').onclick=()=>setView('manager');
+document.getElementById('nav-rep').onclick=()=>setView('rep', sel.value || (D.reps[0]&&D.reps[0].id));
+document.getElementById('nav-friday').onclick=()=>setView('friday');
+sel.onchange=()=>{ if(sel.value) showRep(sel.value); };
+setView('manager');
+})();
+</script>
+</body>
+</html>

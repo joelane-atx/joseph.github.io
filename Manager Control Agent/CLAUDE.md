@@ -1,0 +1,51 @@
+# Manager Control Agent
+
+Sue Yardley's management view of the sales team, built by Joe Flaten. Brief taken 3 Nov 2026 (Otter "Joe / Sue"). Prototype to show Sue on Mon 9 Nov 2026, 8:00 CST, before her 1:1 with Oddmund.
+
+## What it is for
+
+Sue wants to see, without chasing, whether the strategy she sets is actually being worked. The agent turns the strategy into a short weekly list per rep, checks it against what is logged in HubSpot (so reps do not tick boxes themselves), and reports every Friday what was done and what was missed. A manager view for Sue, a view per rep. Reps can reply to the agent, and in the pilot the agent will update HubSpot for them after they say yes, so it helps rather than scolds.
+
+## The first three views (Sue's priorities, in her words)
+
+1. Priority accounts: top 20 per BDM, top 10 per SAM, and the new business activity done on them.
+2. Meetings: type and outcome of each meeting so bad demos are visible, plus lost deals, competitor feedback, and a flag when a meeting has no recording.
+3. Pipeline: what is due to close and how that changes, stale deals, close dates in the past.
+
+Later: two named strategic prospects per BDM worked weekly, customer portal onboarding, demo feedback trends, Q4 incentive leaderboard, monthly HubSpot owner audit, Sue's comments on a rep's activity.
+
+## Rules for this folder
+
+- Read HubSpot only. Never create, change or delete anything in HubSpot from this folder.
+- Build and test locally. No Netlify deploy, no AI Gateway or API spend, without Joe's yes and a credit estimate first.
+- Post nothing and send nothing. No Teams messages, no email, no HubSpot notes.
+- Keep every file in this folder.
+- Keep this work between Joe and Sue until Sue says otherwise.
+- Never commit real HubSpot data. `data/live.js` is the live snapshot and is listed in `.gitignore`. Only `data/sample.js` (made-up names) is committed.
+- Plain language for Joe: bullets, lead with the answer, no em or en dashes.
+
+## Files
+
+- `index.html`: the prototype. Open it in a browser, no server needed. Three views: Manager, Rep, Friday report.
+- `data/live.js`: snapshot of HubSpot for the real reps (not committed). The page uses it when present.
+- `data/sample.js`: made-up data so the page always opens. Used only when `live.js` is missing.
+- `README.md`: how to open it, how to refresh the data, what to show Sue, what is next.
+
+## How to refresh `data/live.js` (read only)
+
+Ask this chat: "refresh the Manager Control data". It then reads HubSpot with the HubSpot connector (never writes) for the 9 BDMs and 7 SAMs and rewrites `data/live.js` in the shape below. Window: this week (Mon to Sun) and last week.
+
+- Reps: the BDMs team and the SAM team in HubSpot (owner ids and names).
+- Accounts: companies owned by each rep that are Target Account = true, or on the Strategic Relationships lists "John Top 25" or "Strategic Prospects". Fields: name, domain, owner, abm_tier, interprefy_stakeholder_company, notes_last_updated, notes_last_contacted, hs_num_open_deals, num_associated_deals, total_revenue, country.
+- Meetings: hs_meeting_start_time in the two weeks, with hs_activity_type, hs_meeting_outcome, hs_meeting_recording_duration, hs_object_source_label and the company name.
+- Deals: open deals in live stages only (leave out Closed Sales Disqualified and Closed - Uncontactable). Three buckets: due to close (closedate today to 31 Dec), close date in the past, stale (notes_last_updated older than 30 days and closedate not in the past). Lists hold the largest deals; counts and sums per owner come from SQL totals. Closed won and closed lost since 30 days ago with closed_lost_reason_new and lost_to_which_competitor.
+- Tasks: hs_timestamp in this week and last week, with subject, status, type. Counts per owner and status from SQL.
+- Activity: calls and emails per owner per week from SQL (DATE_TRUNC week).
+
+Use `query_crm_data` for counts and `search_crm_objects` for lists. The search tool's hs_is_closed filter is unreliable in this portal: filter by deal stage label instead.
+
+## Definitions used in the page
+
+- Worked this week: an activity logged on the account this week. Not touched: no activity in 30 days. Buying: has an open deal.
+- Meeting gaps: no type, past meeting with no outcome, no recording attached in HubSpot (Teams and Otter recordings are not visible to HubSpot yet).
+- Stale deal: open, live stage, no activity logged in 30 days.
