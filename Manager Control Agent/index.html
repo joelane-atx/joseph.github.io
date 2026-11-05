@@ -157,7 +157,7 @@ function renderManager(){
   h += '<div class="card"><h3>Pipeline hygiene <span>open deals per rep</span></h3><div class="rows">'+S.slice().sort((a,b)=>(b.past.n+b.stale.n)-(a.past.n+a.stale.n)).slice(0,8).map(s=>'<div class="r"><b>'+esc(fn(s.r.name))+'</b>'+CH.segbar([{label:'due by 31 Dec',value:s.due.n,color:C.s1},{label:'past close date',value:s.past.n,color:C.crit},{label:'stale',value:s.stale.n,color:C.warn}],{legend:false})+'<span>'+(s.due.n+s.past.n+s.stale.n)+'</span></div>').join('')+'</div>'+CH.legend([{label:'due by 31 Dec',color:C.s1},{label:'past close date',color:C.crit},{label:'stale 30+ days',color:C.warn}])+'</div>';
   h += '</div>';
   h += '<table><thead><tr><th>Rep</th><th class="grp" colspan="2">Priority accounts</th><th class="grp" colspan="2">Meetings</th><th class="grp" colspan="3">New business activity</th><th class="grp" colspan="3">Pipeline</th></tr>';
-  h += '<tr><th></th><th class="num sep">Worked / list</th><th class="num">Not touched 30d</th><th class="num sep">This week</th><th>Gaps</th><th class="num sep">Calls</th><th class="num">Emails</th><th class="num">Tasks done / missed</th><th class="num sep">Due by 31 Dec</th><th class="num">Past close</th><th class="num">Stale</th></tr></thead><tbody>';
+  h += '<tr><th></th><th class="num sep">Worked / list</th><th class="num">Not touched 30d</th><th class="num sep">This week</th><th>Gaps</th><th class="num sep">Calls</th><th class="num">Emails</th><th class="num">HubSpot tasks done / not done</th><th class="num sep">Due by 31 Dec</th><th class="num">Past close</th><th class="num">Stale</th></tr></thead><tbody>';
   let lastTeam='';
   S.forEach(s=>{
     if(s.r.team!==lastTeam){ lastTeam=s.r.team; h+='<tr class="team"><td colspan="11">'+(lastTeam==='BDM'?'Business development managers':'Strategic account managers')+'</td></tr>'; }
@@ -221,7 +221,7 @@ function renderRep(repId){
   h += '</div>';
   // this week's list + reply
   const T = s.tl;
-  h += '<div class="grid2"><div class="panel"><h3>Your list this week <span class="n">'+T.done.length+' done · '+T.missed.length+' overdue · '+T.open.length+' still to do</span></h3>';
+  h += '<div class="grid2"><div class="panel"><h3>Your HubSpot tasks this week <span class="n">'+T.done.length+' done · '+T.missed.length+' overdue · '+T.open.length+' still to do</span></h3>';
   if(!tasks(r.id,'thisWeek').length && s.tc.notStarted+s.tc.completed>0) h += '<div class="note">HubSpot shows '+s.tc.completed+' done and '+s.tc.notStarted+' not started this week. The task list itself is not loaded for this rep in the prototype.</div>';
   const tLi = t => li(esc(t.subject)+'<div class="small muted">'+esc(t.type.replace(/_/g,' ').toLowerCase())+'</div>', 'due '+fmtD(t.due), t.status==='COMPLETED'?'<span class="chip ok">done</span>':(t.due<today?'<span class="chip bad">overdue</span>':'<span class="chip grey">to do</span>'));
   h += showList(T.missed.concat(T.open,T.done), tLi, 10)+'</div>';

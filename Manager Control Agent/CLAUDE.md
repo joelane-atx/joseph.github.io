@@ -27,6 +27,7 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 ## Files
 
 - From Sue's written brief (emailed 5 Nov, kept in `brief/`, not committed): `monday-list.html`, `sales-os.html`, `delivery-options.html`, all on `app/future.css` (dark style), `app/engine.js` (the nine workstreams, task generator, forecast lines, roll-up).
+- Sue's tasks are not HubSpot tasks. The weekly list is Sue's: set by Sue, John, a Team Lead, or generated from her rules. It lives in the agent (prototype: this browser). HubSpot is only the evidence the agent reads on Friday to confirm each task. HubSpot's own task list is shown only in the older prototypes, labelled "HubSpot tasks".
 
 - `prototypes.html`: start here, links the three prototypes and the demo script.
 - `weekly-list.html`: simple prototype, My Week. `command-center.html`: advanced prototype, Sales Command Center. `app/common.js`: shared logic. `data/initiatives.js`: the initiative catalogue (no personal data).

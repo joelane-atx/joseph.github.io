@@ -17,7 +17,12 @@ window.ENG = (function(){
   const wsById = Object.fromEntries(WS.map(w=>[w.id,w]));
   const day = n => { const d=M.toDate(M.W.start); d.setUTCDate(d.getUTCDate()+n); return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}); };
   const DUE = {Mon:day(0),Tue:day(1),Wed:day(2),Thu:day(3),Fri:day(4)};
-  let seq=0; const T=(ws,o)=>Object.assign({id:'k'+(++seq),ws,setBy:'Agent',status:'open'},o);
+  let seq=0; const T=(ws,o)=>Object.assign({id:'k'+(++seq),ws,setBy:'Rule',status:'open',confirmed:false},o);
+  const EVID={inbound:'A call, an email and a LinkedIn message logged on the lead today',pipeline:'Close date moved to the future, or stage Closed Lost with a reason; a contact logged this week',prospects:'An outreach or meeting logged on the company this week, next activity date set',large:'Sponsor named on the deal',top20:'An activity logged on the company this week, next activity date set',top25:'An activity logged on the parent or an entity this week',lapsed:'Reason not returned filled, a contact logged, next activity date set',demo:'A feedback note on the meeting within 24 hours',hygiene:'Call and meeting type and outcome set on every meeting',protected:'Calls logged inside the booked slot'};
+  // Tasks Sue, John or a Team Lead add by hand (kept in this browser for the demo)
+  const manual=()=>JSON.parse(localStorage.getItem('mca.suetasks')||'[]');
+  const addManual=t=>{const a=manual();a.push(Object.assign({id:'m'+Date.now(),status:'open',confirmed:false},t));localStorage.setItem('mca.suetasks',JSON.stringify(a));};
+  const removeManual=id=>localStorage.setItem('mca.suetasks',JSON.stringify(manual().filter(t=>t.id!==id)));
   const short = s => s.length>70? s.slice(0,68)+'…' : s;
 
   function buildTasks(s){ seq=0; const t=[];
@@ -36,7 +41,10 @@ window.ENG = (function(){
     s.g.demos.filter(m=>m.start.slice(0,10)<=M.today).slice(0,2).forEach(m=>t.push(T('demo',{account:m.company||m.title,contact:'You',action:'Log demo feedback: what landed, objections, competitors, next step, where you want help',due:'Next working day',doneWhen:'Feedback note on the meeting',prio:8})));
     if(s.g.noType.length) t.push(T('hygiene',{account:s.g.noType.length+' meetings',contact:'You',action:'Set the meeting type (and outcome where missing): '+s.g.noType.slice(0,3).map(m=>m.company||m.title).join(', ')+(s.g.noType.length>3?'…':''),due:DUE.Wed,doneWhen:'Type and outcome set on every meeting',prio:9}));
     t.push(T('protected',{account:'New business hour',contact:'You',action:'Hold your protected hour and log the calls made in it',due:DUE.Thu,doneWhen:'Calls logged during the slot',prio:10}));
-    t.sort((a,b)=>a.prio-b.prio); const list=t.slice(0,15); list.forEach((x,i)=>x.rank=i+1); return {list, held:t.length-list.length, lapsed};
+    t.forEach(x=>{x.evidence=EVID[x.ws]||'';});
+    t.sort((a,b)=>a.prio-b.prio);
+    const mine=manual().filter(m=>m.rep===s.r.id).map(m=>Object.assign({ws:m.ws||'top20',prio:0,evidence:m.evidence||'What Sue asked for, logged in HubSpot',confirmed:false},m));
+    const all=mine.concat(t); const list=all.slice(0,15); list.forEach((x,i)=>x.rank=i+1); return {list, held:all.length-list.length, lapsed, manualCount:mine.length};
   }
   // forecast lines from stage, as a stand in for the forecast category field (empty in HubSpot today)
   function forecast(s){ const m=M.today.slice(0,7); const inMonth=s.dueList.filter(d=>d.close.slice(0,7)===m);
@@ -51,10 +59,10 @@ window.ENG = (function(){
   function rollup(x){ const s=x.r?x:M.repSummary(x); const tk=buildTasks(s), f=forecast(s); const lostR=reasons(s.lost);
     const gaps=(s.prospects.length?2-Math.min(2,s.prospectsWorked):2)+(s.g.noType.length?1:0)+(s.past.n>5?2:s.past.n?1:0)+(s.stale.n?1:0)+(s.tl.missed.length?1:0)+(s.paNeeds>5?1:0)+(s.lostNoReason.length?1:0);
     return {s, lead:lead(s.r), tasks:tk, f, gaps, meetingsWeek:s.ms.length, meetingsFortnight:s.ms.length+s.lm.length, newBiz:s.ms.concat(s.lm).filter(m=>/prospect|discovery|demo|qualify/i.test(m.type||'')).length, noType:s.g.noType.length,
-      tasksSet:tk.list.length, tasksDone:s.tc.completed, tasksMissed:s.tl.missed.length, prospectsWorked:s.prospectsWorked, prospectsN:s.prospects.length, paActive:s.pa.filter(a=>a.status!=='needswork').length, paN:s.pa.length,
+      tasksSet:tk.list.length, tasksDone:tk.list.filter(t=>t.confirmed).length, tasksMissed:0, tasksOpen:tk.list.filter(t=>!t.confirmed).length, prospectsWorked:s.prospectsWorked, prospectsN:s.prospects.length, paActive:s.pa.filter(a=>a.status!=='needswork').length, paN:s.pa.length,
       johnDone:s.johnWorked, johnN:s.john.length, lapsedN:tk.lapsed.length, lapsedActive:0, lapsedValue:sum(tk.lapsed.map(a=>a.revenue)), outOfDate:s.past.n+s.stale.n+s.noNext.length, outOfDateValue:s.past.amt+s.stale.amt,
       won:s.won.length, lost:s.lost.length, winRate:M.pct(s.won.length,s.won.length+s.lost.length), topReasons:lostR.slice(0,2), demosNoFeedback:s.g.demos.filter(m=>m.start.slice(0,10)<=M.today).length, largeNoSponsor:s.dueList.filter(d=>(d.amount||0)>=LARGE).length };
   }
   function teamReasons(){ return reasons(D.deals.lost); }
-  return {WS, wsById, DUE, LARGE, buildTasks, forecast, rollup, lead, reasons, teamReasons};
+  return {WS, wsById, DUE, LARGE, EVID, buildTasks, forecast, rollup, lead, reasons, teamReasons, manual, addManual, removeManual};
 })();
