@@ -4,7 +4,8 @@ Built 4 Nov 2026 for the Joe / Sue meeting on Mon 9 Nov 2026, 8:00 CST.
 
 ## Open it
 
-- Start at `prototypes.html`: it links the three prototypes and has the Monday demo script.
+- Start at `prototypes.html`: it links all six prototypes and has the suggested path.
+- From Sue's written brief (5 Nov), future style: `monday-list.html` (Task Engine: Monday list, Wednesday nudge, Friday report, team roll-up), `sales-os.html` (the whole brief as one product), `delivery-options.html` (Claude, Teams, email, HubSpot mock-ups and the costed build options).
 - Simple: `weekly-list.html` (My Week). Standard: `index.html` (Manager Control). Advanced: `command-center.html` (Sales Command Center).
 - Ideas and the full initiative list: `IDEAS.md`.
 - Double click any page. It opens in the browser, nothing to install, no internet needed.

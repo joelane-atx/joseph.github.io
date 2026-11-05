@@ -26,6 +26,8 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 
 ## Files
 
+- From Sue's written brief (emailed 5 Nov, kept in `brief/`, not committed): `monday-list.html`, `sales-os.html`, `delivery-options.html`, all on `app/future.css` (dark style), `app/engine.js` (the nine workstreams, task generator, forecast lines, roll-up).
+
 - `prototypes.html`: start here, links the three prototypes and the demo script.
 - `weekly-list.html`: simple prototype, My Week. `command-center.html`: advanced prototype, Sales Command Center. `app/common.js`: shared logic. `data/initiatives.js`: the initiative catalogue (no personal data).
 - `IDEAS.md`: every initiative, how it is tracked, login options, the ladder, what to build next.
