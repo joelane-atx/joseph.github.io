@@ -5,7 +5,8 @@ Built 4 Nov 2026 for the Joe / Sue meeting on Mon 9 Nov 2026, 8:00 CST.
 ## Open it
 
 - Start at `prototypes.html`: it links all six prototypes and has the suggested path.
-- From Sue's written brief (5 Nov), future style: `monday-list.html` (Task Engine: Monday list, Wednesday nudge, Friday report, team roll-up), `sales-os.html` (the whole brief as one product), `delivery-options.html` (Claude, Teams, email, HubSpot mock-ups and the costed build options).
+- The build: `sales-control.html` (Sales Control). Sue's super-control view: she enters and manages the tasks, tracks everyone's KPIs and activity, asks for updates in Teams (queued, not sent), logs feedback, Friday report, forecast, win/loss, initiatives, announcements, coaching, audits. "View as" Team Lead, John or a rep shows their own view. Tasks are Sue's, not HubSpot's; HubSpot is the evidence.
+- `delivery-options.html`: how a rep receives Sue's list (Claude, Teams, email, HubSpot) and the costed build options.
 - Simple: `weekly-list.html` (My Week). Standard: `index.html` (Manager Control). Advanced: `command-center.html` (Sales Command Center).
 - Ideas and the full initiative list: `IDEAS.md`.
 - Double click any page. It opens in the browser, nothing to install, no internet needed.

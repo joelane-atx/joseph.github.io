@@ -26,8 +26,9 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 
 ## Files
 
-- From Sue's written brief (emailed 5 Nov, kept in `brief/`, not committed): `monday-list.html`, `sales-os.html`, `delivery-options.html`, all on `app/future.css` (dark style), `app/engine.js` (the nine workstreams, task generator, forecast lines, roll-up).
-- Sue's tasks are not HubSpot tasks. The weekly list is Sue's: set by Sue, John, a Team Lead, or generated from her rules. It lives in the agent (prototype: this browser). HubSpot is only the evidence the agent reads on Friday to confirm each task. HubSpot's own task list is shown only in the older prototypes, labelled "HubSpot tasks".
+- The build, from Sue's written brief (emailed 5 Nov, kept in `brief/`, not committed): `sales-control.html` (Sue's super control; view as Team Lead, John, rep), `delivery-options.html`, on `app/future.css` (dark style) and `app/engine.js` (Sue's rules suggest tasks, Sue's task store, evidence check against HubSpot, Teams message queue, replies, forecast lines, roll-up).
+- Model: Sue has super control and sets the tasks. Everyone else has their own view in the same platform, limited to their scope; Sue can view as any of them and manage from there. Teams messages are queued only (post nothing).
+- Sue's tasks are not HubSpot tasks. Her rules only suggest; nothing is on a list until Sue (or John, or a Team Lead) accepts or enters it. HubSpot is only the evidence the agent reads on Friday to confirm each task. HubSpot's own task list is shown only in the older prototypes, labelled "HubSpot tasks".
 
 - `prototypes.html`: start here, links the three prototypes and the demo script.
 - `weekly-list.html`: simple prototype, My Week. `command-center.html`: advanced prototype, Sales Command Center. `app/common.js`: shared logic. `data/initiatives.js`: the initiative catalogue (no personal data).
