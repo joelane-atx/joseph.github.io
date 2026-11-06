@@ -1,7 +1,11 @@
 // Small SVG chart kit. No libraries, works from a file:// page. Colors follow the validated palette in app/charts.js header.
 window.CH = (function(){
-  const DARK = document.body && document.body.dataset.chartTheme==='dark';
-  const C = DARK ? { s1:'#3987e5', s2:'#d95926', s3:'#199e70', s4:'#c98500', good:'#0ca30c', warn:'#fab219', serious:'#ec835a', crit:'#d03b3b', ink:'#f0efec', ink2:'#c3c2b7', muted:'#898781', grid:'#2c2c2a', axis:'#383835', surface:'#1a1a19', seq:['#9ec5f4','#6da7ec','#5598e7','#3987e5','#2a78d6','#1c5cab','#184f95'] } : { s1:'#2a78d6', s2:'#eb6834', s3:'#1baf7a', s4:'#eda100', good:'#0ca30c', warn:'#fab219', serious:'#ec835a', crit:'#d03b3b', ink:'#0b0b0b', ink2:'#52514e', muted:'#898781', grid:'#e1e0d9', axis:'#c3c2b7', surface:'#fcfcfb', seq:['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#2a78d6','#1c5cab','#0d366b'] };
+  const PAL = {
+    light:{ s1:'#2a78d6', s2:'#eb6834', s3:'#1baf7a', s4:'#eda100', good:'#0ca30c', warn:'#fab219', serious:'#ec835a', crit:'#d03b3b', ink:'#0b0b0b', ink2:'#52514e', muted:'#898781', grid:'#e1e0d9', axis:'#c3c2b7', surface:'#fcfcfb', track:'#ebeae6', na:'#e6e4df', seq:['#cde2fb','#9ec5f4','#6da7ec','#3987e5','#2a78d6','#1c5cab','#0d366b'] },
+    dark:{ s1:'#3987e5', s2:'#d95926', s3:'#199e70', s4:'#c98500', good:'#0ca30c', warn:'#fab219', serious:'#ec835a', crit:'#d03b3b', ink:'#f0efec', ink2:'#c3c2b7', muted:'#898781', grid:'#2c2c2a', axis:'#383835', surface:'#1a1a19', track:'#2c2c2a', na:'#2c2c2a', seq:['#9ec5f4','#6da7ec','#5598e7','#3987e5','#2a78d6','#1c5cab','#184f95'] } };
+  const initial = (document.documentElement.dataset.theme) || (document.body && document.body.dataset.chartTheme) || 'light';
+  const C = Object.assign({}, PAL[initial==='dark'?'dark':'light']);
+  const setTheme = m => { Object.assign(C, PAL[m==='dark'?'dark':'light']); };
   const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const fmtN = n => n==null?'':Math.abs(n)>=1e6?(n/1e6).toFixed(1)+'M':Math.abs(n)>=1e4?Math.round(n/1e3)+'K':Math.abs(n)>=1e3?(n/1e3).toFixed(1)+'K':String(Math.round(n));
   const fmtCHF = n => 'CHF '+fmtN(n);
@@ -51,20 +55,20 @@ window.CH = (function(){
   // Ordinal bars (funnel like): rows [{label,value}] using the sequential ramp
   function ordinal(rows, o={}){ const n=rows.length; return hbar(rows.map((r,i)=>({...r,color:C.seq[Math.min(6,1+Math.floor(5*i/Math.max(1,n-1)))]})),o); }
   // Progress ring
-  function ring(v, max, o={}){ const r=o.r||22, sw=o.stroke||6, size=2*(r+sw), f=max?Math.min(1,v/max):0, circ=2*Math.PI*r, col=o.color||C.s1; return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" style="display:block"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+(DARK?'#2c2c2a':'#ebeae6')+'" stroke-width="'+sw+'"/><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+(circ*f)+' '+(circ*(1-f))+'" transform="rotate(-90 '+size/2+' '+size/2+')"/><text x="50%" y="50%" dy="4" text-anchor="middle" font-size="12" font-weight="700" fill="'+C.ink+'">'+esc(o.text||Math.round(100*f)+'%')+'</text></svg>'; }
+  function ring(v, max, o={}){ const r=o.r||22, sw=o.stroke||6, size=2*(r+sw), f=max?Math.min(1,v/max):0, circ=2*Math.PI*r, col=o.color||C.s1; return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" style="display:block"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+C.track+'" stroke-width="'+sw+'"/><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+(circ*f)+' '+(circ*(1-f))+'" transform="rotate(-90 '+size/2+' '+size/2+')"/><text x="50%" y="50%" dy="4" text-anchor="middle" font-size="12" font-weight="700" fill="'+C.ink+'">'+esc(o.text||Math.round(100*f)+'%')+'</text></svg>'; }
   // Meter
   function meter(v, max, o={}){ const f=max?Math.min(1,v/max):0; const col=o.color||(f>=1?C.good:f>=0.5?C.warn:C.crit); return '<div class="ch-meter" title="'+esc(v+' of '+max)+'"><i style="width:'+Math.round(100*f)+'%;background:'+col+'"></i></div>'; }
   // Sparkline
   function spark(vals, o={}){ const w=o.width||90,h=o.height||26,max=Math.max(1,...vals),min=0; const pts=vals.map((v,i)=>[(i/(vals.length-1||1))*(w-4)+2, h-2-(h-4)*(v-min)/(max-min||1)]); const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' '); const last=pts[pts.length-1]; return '<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" style="display:block;overflow:visible"><path d="'+d+'" fill="none" stroke="'+(o.color||C.s1)+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+last[0]+'" cy="'+last[1]+'" r="4" fill="'+(o.color||C.s1)+'" stroke="'+C.surface+'" stroke-width="2"/></svg>'; }
   // Heatmap of states: rows [{label, cells:[{state,tip}]}], cols [labels]
   function heat(rows, cols, o={}){
-    const colr={ok:C.good,warn:C.warn,bad:C.crit,na:DARK?'#2c2c2a':'#e6e4df'}, sym={ok:'✓',warn:'◐',bad:'✗',na:''};
+    const colr={ok:C.good,warn:C.warn,bad:C.crit,na:C.na}, sym={ok:'✓',warn:'◐',bad:'✗',na:''};
     let s='<div class="ch-heat" style="grid-template-columns:'+(o.labelW||150)+'px repeat('+cols.length+',minmax(26px,1fr))">';
     s+='<div></div>'+cols.map(c=>'<div class="ch-hc" title="'+esc(c)+'"><span>'+esc(c)+'</span></div>').join('');
     rows.forEach(r=>{ s+='<div class="ch-hl"'+(r.attr||'')+'>'+esc(r.label)+'</div>'+r.cells.map(c=>'<div class="ch-cell" style="background:'+colr[c.state]+';color:'+(c.state==='warn'?'#0b0b0b':c.state==='na'?'#999':'#fff')+'" title="'+esc(c.tip||'')+'">'+sym[c.state]+'</div>').join(''); });
-    return s+'</div>'+legend([{label:'on track',color:C.good},{label:'partly',color:C.warn},{label:'behind',color:C.crit},{label:'nothing to measure',color:DARK?'#2c2c2a':'#e6e4df'}]);
+    return s+'</div>'+legend([{label:'on track',color:C.good},{label:'partly',color:C.warn},{label:'behind',color:C.crit},{label:'nothing to measure',color:C.na}]);
   }
   const css = '.ch-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--ch-legend,#52514e);margin-top:6px}.ch-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}.ch-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.ch-meter{height:8px;background:var(--ch-track,#ebeae6);border-radius:4px;overflow:hidden}.ch-meter i{display:block;height:100%;border-radius:4px}.ch-heat{display:grid;gap:3px;align-items:center;font-size:12px}.ch-hc{height:96px;position:relative}.ch-hc span{position:absolute;bottom:0;left:50%;transform:rotate(-55deg) translate(2px,-4px);transform-origin:left bottom;white-space:nowrap;font-size:10px;color:var(--ch-legend,#52514e)}.ch-hl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px;color:var(--ch-ink,#0b0b0b);font-weight:600}.ch-cell{height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}';
   const style=document.createElement('style'); style.textContent=css; document.head.appendChild(style);
-  return { C, esc, fmtN, fmtCHF, mount, hover, legend, hbar, columns, segbar, donut, ordinal, ring, meter, spark, heat };
+  return { C, setTheme, esc, fmtN, fmtCHF, mount, hover, legend, hbar, columns, segbar, donut, ordinal, ring, meter, spark, heat };
 })();

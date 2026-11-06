@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Prototypes</title>
+<script>(function(){var t=localStorage.getItem("mca.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
 <link rel="stylesheet" href="app/future.css">
 <style>.opt{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:22px}.opt .card{display:flex;flex-direction:column;gap:8px}.opt .card p{margin:0;color:#c7d4e6;font-size:13.5px}.opt .card ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--mut)}.opt a.btn{margin-top:auto;text-align:center;text-decoration:none;display:block}.light .card{background:#fff;color:#0C0C0D;border-color:#e6e2df;box-shadow:none}.light .card p{color:#444}.light .card ul{color:#666}.light .card:before,.light .card:after{display:none}.big{grid-column:span 2}@media(max-width:700px){.big{grid-column:span 1}}</style></head>
 <body>
 <div class="bgfx"><div class="g1"></div><div class="g2"></div><div class="dots"></div><div class="scan"></div></div>
 <div class="page"><main>
-<div class="kick mono" style="margin-bottom:10px">// manager_control_agent<b>.prototypes</b> --for=sue --meeting=2026-11-09T08:00CST</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="kick mono">// manager_control_agent<b>.prototypes</b> --for=sue --meeting=2026-11-09T08:00CST</div><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></div>
 <h1>Sue runs the sales org from one place: <span class="g">she sets the tasks, HubSpot confirms them</span></h1>
 <p class="sub">Everything opens from this folder, reads HubSpot only, sends nothing. The main build follows <span>Sue's written brief of 2 Nov</span> and the clarifications since: the tasks are Sue's, not HubSpot's; she has super control; everyone else gets their own view that she can manage from.</p>
 
@@ -30,4 +31,4 @@
 <tr><td>January</td><td>Teams posting with IT consent, HubSpot task queue with Sven, then a hosted version with sign-in for Sue on the web.</td><td>Netlify and API cost, warn first</td></tr>
 </tbody></table></div>
 <p class="small muted" style="margin-top:14px">Data note: every page reads <code>data/live.js</code> if present (real HubSpot snapshot, never shared) and otherwise <code>data/sample.js</code> (made-up names).</p>
-</main></div></body></html>
+</main></div><script>document.getElementById("theme").onclick=function(){var t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;localStorage.setItem("mca.theme",t);};</script></body></html>

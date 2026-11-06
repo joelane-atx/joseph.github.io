@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sales Control</title>
+<script>(function(){var t=localStorage.getItem("mca.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
 <link rel="stylesheet" href="app/future.css">
 <style>
 .ann{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card2)}.ann .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ann.imp{border-color:rgba(244,114,208,.4)}
@@ -25,7 +26,7 @@
  <div class="foot">Reads HubSpot only.<br>Nothing is sent from this page.<br>Sue's entries stay in this browser.</div>
 </aside>
 <div>
- <div class="topbar"><span class="kick mono" id="title">// dashboard</span><span class="status grey" id="snap"></span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="small muted">View as</span><div class="pills" id="roles"><button data-r="sue" class="on">Sue · super control</button><button data-r="lead">Team Lead</button><button data-r="john">John</button><button data-r="rep">Rep</button></div><select id="rep"></select><button class="btn ghost" id="reset" title="Clear everything Sue entered in this browser and reload the demo week">Reset demo</button></span></div>
+ <div class="topbar"><span class="kick mono" id="title">// dashboard</span><span class="status grey" id="snap"></span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="small muted">View as</span><div class="pills" id="roles"><button data-r="sue" class="on">Sue · super control</button><button data-r="lead">Team Lead</button><button data-r="john">John</button><button data-r="rep">Rep</button></div><select id="rep"></select><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button><button class="btn ghost" id="reset" title="Clear everything Sue entered in this browser and reload the demo week">Reset demo</button></span></div>
  <main id="app"></main>
 </div></div>
 <script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script>
@@ -222,6 +223,7 @@ function setRole(){ document.querySelectorAll('#roles button').forEach(b=>b.clas
 document.querySelectorAll('.nav a').forEach(a=>a.onclick=()=>{view=a.dataset.v;personId=null;render();});
 document.querySelectorAll('#roles button').forEach(b=>b.onclick=()=>{role=b.dataset.r;setRole();render();});
 sel.onchange=()=>{repId=sel.value;personId=null;render();};
+document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('mca.theme',t);CH.setTheme(t);render();};
 document.getElementById('reset').onclick=()=>{ if(confirm('Clear everything entered in this browser and reload the demo week?')){ E.resetAll(); ['ack','init','focus','demos'].forEach(k=>localStorage.removeItem('mca.'+k)); location.reload(); } };
 setRole(); render();
 })();

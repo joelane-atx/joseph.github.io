@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Delivery Options</title>
+<script>(function(){var t=localStorage.getItem("mca.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
 <link rel="stylesheet" href="app/future.css"></head>
 <body data-chart-theme="dark">
 <div class="bgfx"><div class="g1"></div><div class="g2"></div><div class="dots"></div><div class="scan"></div></div>
 <div class="page">
-<div class="topbar"><span class="kick mono">// sales_manager_agent<b>.delivery</b> --question="where do reps see it?"</span><span class="status grey" id="snap"></span><span style="margin-left:auto"><select id="rep"></select></span></div>
+<div class="topbar"><span class="kick mono">// sales_manager_agent<b>.delivery</b> --question="where do reps see it?"</span><span class="status grey" id="snap"></span><span style="margin-left:auto;display:flex;gap:8px"><select id="rep"></select><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></span></div>
 <main>
  <h1>Where the agent <span class="g">reaches the reps</span></h1>
  <p class="sub">Sue sets the list in Sales Control. This is how it reaches a rep, four ways, with real content for the rep selected above. <span>Nothing here is sent.</span></p>
@@ -34,5 +35,6 @@ function render(){ const r=M.repById[sel.value]||bdms[0]; E.seedOnce(D.reps); co
   h+='<div class="card mg"><h3>4 · In HubSpot <span class="n">a task queue "Agent · this week", tasks created by the agent</span></h3><div class="hs"><div class="hsbar">Tasks · Queue: Agent · this week <span style="margin-left:auto;color:#516f90;font-weight:400">'+tk.list.length+' tasks</span></div><table><thead><tr><th>Title</th><th>Associated</th><th>Due</th><th>Priority</th></tr></thead><tbody>'+tk.list.slice(0,6).map(t=>'<tr><td>'+esc(t.action.slice(0,60))+(t.action.length>60?'…':'')+'</td><td>'+esc(t.account.slice(0,34))+'</td><td>'+esc(t.due)+'</td><td>'+(t.prio<=2?'<span class="pri">High</span>':'Medium')+'</td></tr>').join('')+'</tbody></table><div style="font-size:11.5px;color:#516f90;margin-top:8px">Agent tasks carry the tag "agent" so they report separately. The rep completes them in HubSpot; the agent checks the activity behind each one on Friday.</div></div><div class="need" style="margin-top:10px">Needs: HubSpot write access for the agent, approved by Sven.</div></div>';
   document.getElementById('mocks').innerHTML=h; }
 sel.onchange=render; render();
+document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('mca.theme',t);window.CH.setTheme(t);render();};
 })();
 </script></body></html>
