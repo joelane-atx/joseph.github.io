@@ -27,6 +27,7 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 ## Files
 
 - The build, from Sue's written brief (emailed 5 Nov, kept in `brief/`, not committed): `sales-control.html` (Sue's super control; view as Team Lead, John, rep), `delivery-options.html`, on `app/future.css` (dark style) and `app/engine.js` (Sue's rules suggest tasks, Sue's task store, evidence check against HubSpot, Teams message queue, replies, forecast lines, roll-up).
+- `app/orbit.js`: the spinning 3D org graph on the Sales Control dashboard (canvas, no libraries). People are hubs; their priority accounts, deals and meetings orbit them. Drag to spin, hover a dot. Light and dark aware.
 - Model: Sue has super control and sets the tasks. Everyone else has their own view in the same platform, limited to their scope; Sue can view as any of them and manage from there. Teams messages are queued only (post nothing).
 - Sue's tasks are not HubSpot tasks. Her rules only suggest; nothing is on a list until Sue (or John, or a Team Lead) accepts or enters it. HubSpot is only the evidence the agent reads on Friday to confirm each task. HubSpot's own task list is shown only in the older prototypes, labelled "HubSpot tasks".
 
