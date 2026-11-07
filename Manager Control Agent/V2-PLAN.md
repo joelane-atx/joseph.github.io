@@ -14,6 +14,8 @@ V1 (`v1.html`) is the simple version Sue asked for on 3 Nov. V2 (`v2.html`) is t
 
 ## Next, in order
 
+0. **Sue's flags on accounts** (built in V1, move into V2): flag or comment on any priority account, rep replies, each flag can be queued as a HubSpot note on the company. Writing the note needs the read-only rule lifted and Sue's yes; the note would @mention the owner so HubSpot notifies them.
+
 1. **V1 home inside V2**: the one-screen leaderboard as the first view, the charts one click away.
 2. **Strategic prospects**: two named per BDM, touched weekly, goal a meeting. Needs prospects named in HubSpot.
 3. **Demo feedback**: red or green per demo, trend per rep, from the meeting notes. Needs the feedback field or note template.
