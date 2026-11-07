@@ -93,7 +93,7 @@ const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&l
 const by = (a,k) => a.filter(x=>x.owner===k);
 const sum = a => a.reduce((s,x)=>s+(x||0),0);
 const repById = Object.fromEntries(D.reps.map(r=>[r.id,r]));
-const cap = r => r.team==='SAM'?10:20;
+const cap = r => r.team==='BDM'?20:10;
 
 // priority accounts for a rep: target accounts + the manager's lists owned by that rep
 function priority(repId){

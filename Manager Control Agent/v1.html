@@ -12,7 +12,7 @@ body{overflow-x:hidden}
 .bar1 .sp{flex:1}
 .bar1 select{font:inherit;font-size:12.5px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:6px 8px}
 .pri{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:10px}
-.pri .card{cursor:pointer;padding:12px 14px}.pri .card.on{box-shadow:0 0 0 1px var(--c),0 0 24px -6px var(--c)}
+.pri .card{cursor:pointer;padding:10px 14px}.pri .card.on{box-shadow:0 0 0 1px var(--c),0 0 24px -6px var(--c)}
 .pri .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between}
 .pri .big{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:2px 0 6px}.pri .big small{font-size:12.5px;font-weight:500;color:var(--mut);letter-spacing:0;margin-left:6px}
 .pri .ln{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}.pri .ln b{color:var(--ink);font-weight:600}
@@ -21,7 +21,7 @@ body{overflow-x:hidden}
 @media(max-width:1100px){.main,.pri{grid-template-columns:1fr}}
 .lb{overflow:auto}.lb table{width:100%;border-collapse:collapse;font-size:12.5px}
 .lb th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);text-align:left;font-weight:600;padding:4px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
-.lb td{padding:4px 6px;border-bottom:1px dashed var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lb td{padding:2px 6px;line-height:1.35;border-bottom:1px dashed var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
 .lb tr.p{cursor:pointer}.lb tr.p:hover td{background:rgba(34,229,255,.06)}
 .lb td.n,.lb th.n{text-align:right}.lb .mini{width:90px;display:inline-block;vertical-align:middle}
 .lb th.on{color:var(--cy)}
@@ -51,7 +51,7 @@ body{overflow-x:hidden}
   <label class="small muted" for="as">View as</label><select id="as"></select>
   <button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></div>
  <div id="app"></div>
- <div class="foot"><span>Reads HubSpot only. Nothing is sent from this page.</span><span>Priority accounts: top 20 per BDM, top 10 per SAM. Worked = activity logged this week.</span><span>Meeting gaps cover this week and last week.</span></div>
+ <div class="foot"><span>Reads HubSpot only. Nothing is sent from this page.</span><span>Priority accounts: top 20 per BDM, top 10 per SAM and CSM. Worked = activity logged this week.</span><span>Meeting gaps cover this week and last week.</span></div>
 </div>
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-label="Person detail"></aside>
@@ -90,7 +90,7 @@ function priCards(list){ const top=list.flatMap(x=>x.top), worked=sum(list.map(x
   const due=list.flatMap(x=>x.s.dueList); const st={}; due.forEach(d=>{st[d.stage]=(st[d.stage]||0)+(d.amount||0);}); const scol=['var(--gr)','var(--cy)','var(--vi)','var(--am)','#5d6f8a']; const stages=['Negotiation','Quote Sent','Sales Qualified/SQL','Needs Sales Qualification','Deal Created / MQL'].map((k,i)=>({label:k,value:st[k]||0,color:scol[i]}));
   const card=(k,c,inner)=>'<div class="card '+c+(sortBy===k&&as==='sue'?' on':'')+'" data-sort="'+k+'" tabindex="0">'+inner+'</div>';
   return '<div class="pri">'
-   +card('priority','','<div class="k"><span>1 · Priority accounts</span><span>top 20 BDM · top 10 SAM</span></div><div class="big">'+worked+' of '+N+'<small>worked this week</small></div>'+seg([{label:'buying (open deal)',value:buy,color:col.buying},{label:'in touch (30 days)',value:it,color:col.intouch},{label:'needs work',value:nw,color:col.needswork}],10)+'<div class="lg"><span><i style="background:var(--gr)"></i>buying '+buy+'</span><span><i style="background:#60a5fa"></i>in touch '+it+'</span><span><i style="background:var(--rd)"></i>needs work '+nw+'</span></div>')
+   +card('priority','','<div class="k"><span>1 · Priority accounts</span><span>top 20 BDM · top 10 SAM/CSM</span></div><div class="big">'+worked+' of '+N+'<small>worked this week</small></div>'+seg([{label:'buying (open deal)',value:buy,color:col.buying},{label:'in touch (30 days)',value:it,color:col.intouch},{label:'needs work',value:nw,color:col.needswork}],10)+'<div class="lg"><span><i style="background:var(--gr)"></i>buying '+buy+'</span><span><i style="background:#60a5fa"></i>in touch '+it+'</span><span><i style="background:var(--rd)"></i>needs work '+nw+'</span></div>')
    +card('meetings','vi','<div class="k"><span>2 · Meetings and outcomes</span><span>this + last week</span></div><div class="big">'+sum(list.map(x=>x.mWk))+'<small>meetings this week</small></div>'+seg(types,10)+'<div class="lg">'+types.map(t=>'<span><i style="background:'+t.color+'"></i>'+esc(t.label)+' '+t.value+'</span>').join('')+'</div><div class="ln"><b class="r">'+sum(list.map(x=>x.noType))+'</b> no type · <b class="r">'+sum(list.map(x=>x.noOut))+'</b> no outcome · lost '+lost.length+' / won '+won.length+' in 30 days'+(topR?' · top loss reason: <b>'+esc(topR[0].slice(0,38))+'</b>':'')+'</div>')
    +card('pipeline','am','<div class="k"><span>3 · Pipeline</span><span>due to close by 31 Dec</span></div><div class="big">'+chf(sum(list.map(x=>x.s.due.amt)))+'<small>'+sum(list.map(x=>x.s.due.n))+' deals due</small></div>'+seg(stages,10)+'<div class="lg">'+stages.filter(s=>s.value).map(s=>'<span><i style="background:'+s.color+'"></i>'+esc(s.label.replace('Needs Sales Qualification','Needs qual.').replace('Deal Created / MQL','MQL'))+'</span>').join('')+'</div><div class="ln"><b class="r">'+sum(list.map(x=>x.s.past.n))+'</b> deals past close date ('+chf(sum(list.map(x=>x.s.past.amt)))+') · <b>'+sum(list.map(x=>x.s.stale.n))+'</b> stale, no activity in 30 days</div>')
    +'</div>'; }
@@ -144,7 +144,7 @@ function refresh(){ if(as==='sue'){ app.innerHTML=board(); if(open) openP(open);
   app.querySelectorAll('[data-sort]').forEach(e=>{e.onclick=()=>{sortBy=e.dataset.sort; refresh();}; e.onkeydown=ev=>{if(ev.key==='Enter'){sortBy=e.dataset.sort; refresh();}};});
   app.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>{tab='accounts'; openP(e.dataset.p);}); }
 scrim.onclick=closeP; document.addEventListener('keydown',e=>{if(e.key==='Escape') closeP();});
-const sel=document.getElementById('as'); sel.innerHTML='<option value="sue">Sue · whole team</option>'+['BDM','SAM'].map(t=>'<optgroup label="'+t+'s">'+REPS.filter(r=>r.team===t).map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('')+'</optgroup>').join('');
+const sel=document.getElementById('as'); sel.innerHTML='<option value="sue">Sue · whole team</option>'+['BDM','SAM','CSM'].map(t=>'<optgroup label="'+t+'s">'+REPS.filter(r=>r.team===t).map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('')+'</optgroup>').join('');
 sel.onchange=()=>{as=sel.value; tab='accounts'; refresh();};
 document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark'; document.documentElement.dataset.theme=t; try{localStorage.setItem('mca.theme',t)}catch(e){} CH.setTheme(t); refresh();};
 refresh();

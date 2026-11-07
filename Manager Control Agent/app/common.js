@@ -13,7 +13,7 @@ window.MCA = (function(){
   const pl = (n,w) => n+' '+w+(n===1?'':'s');
   const pct = (a,b) => b? Math.round(100*a/b) : 0;
   const repById = Object.fromEntries(D.reps.map(r=>[r.id,r]));
-  const cap = r => r.team==='SAM'?10:20;
+  const cap = r => r.team==='BDM'?20:10;
   const cnt = (obj,k) => (obj&&obj[k])||{n:0,amt:0};
   const isDemo = m => /demo/i.test(m.type||'') || /demo/i.test(m.title||'');
   const settings = Object.assign({callsTarget:10, emailsTarget:40, prospectsTarget:2, staleDays:30}, JSON.parse(localStorage.getItem('mca.settings')||'{}'));
