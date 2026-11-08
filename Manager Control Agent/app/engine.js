@@ -49,7 +49,7 @@ window.ENG = (function(){
     if(s.pa.length) top.slice(0,W.top20.perWeek).forEach(a=>T('top20',{account:a.name,contact:'Your main contact',action:(a.revenue?'Ask for a 2027 planning call and an introduction to another entity or team':'Re-open the conversation: one call or email with a concrete reason'),due:DUE.Fri,doneWhen:'Activity logged, next step dated',prio:5}));
     else T('top20',{account:'Your top '+M.cap(s.r)+' priority accounts',contact:'You and your Team Lead',action:'Mark your top '+M.cap(s.r)+' as Priority account in HubSpot so the agent can track them',due:DUE.Mon,doneWhen:M.cap(s.r)+' companies tagged',prio:5});
     s.john.slice().sort((a,b)=>(a.workedThisWeek?1:0)-(b.workedThisWeek?1:0)).slice(0,W.top25.perWeek).forEach(a=>T('top25',{account:a.name,contact:'John',action:'Agree this week\'s joint action with John and log it on the parent account',due:DUE.Tue,doneWhen:'Action logged on the parent or an entity',prio:6,setBy:'John'}));
-    s.pa.filter(a=>(a.revenue||0)>=LARGE&&(a.days==null||a.days>LAPSED_DAYS)).slice(0,W.lapsed.perWeek).forEach(a=>T('lapsed',{account:a.name,contact:'Last event contact',action:'Record why they have not come back ('+chf(a.revenue)+' lifetime, '+(a.days!=null?a.days+' days quiet':'never touched')+') and set a next action',due:DUE.Thu,doneWhen:'Reason recorded, dated next step, contact logged',prio:7}));
+    (s.acc||s.pa).filter(a=>(a.revenue||0)>=LARGE&&(a.days==null||a.days>LAPSED_DAYS)).slice(0,W.lapsed.perWeek).forEach(a=>T('lapsed',{account:a.name,contact:'Last event contact',action:'Record why they have not come back ('+chf(a.revenue)+' lifetime, '+(a.days!=null?a.days+' days quiet':'never touched')+') and set a next action',due:DUE.Thu,doneWhen:'Reason recorded, dated next step, contact logged',prio:7}));
     s.g.demos.filter(m=>m.start.slice(0,10)<=M.today).slice(0,W.demo.perWeek).forEach(m=>T('demo',{account:m.company||m.title,contact:'You',action:'Log demo feedback: what landed, objections, competitors, next step, where you want help',due:'Next working day',doneWhen:'Feedback note on the meeting',prio:8}));
     if(s.g.noType.length) T('hygiene',{account:s.g.noType.length+' meetings',contact:'You',action:'Set the meeting type and outcome: '+s.g.noType.slice(0,3).map(m=>m.company||m.title).join(', ')+(s.g.noType.length>3?'…':''),due:DUE.Wed,doneWhen:'Type and outcome set on every meeting',prio:9});
     T('protected',{account:'New business hour',contact:'You',action:'Hold your protected hour and log the calls made in it',due:DUE.Thu,doneWhen:'Calls logged during the slot',prio:10});
@@ -57,7 +57,7 @@ window.ENG = (function(){
     return t.filter(x=>!dm[x.key]&&!have.has(x.key)).sort((a,b)=>a.prio-b.prio);
   }
   // ---- evidence: what HubSpot shows today for a task ----
-  function evidence(s,t){ const acc=n=>s.pa.find(a=>a.name===t.account);
+  function evidence(s,t){ const acc=n=>(s.acc||s.pa).find(a=>a.name===t.account);
     switch(t.ws){
       case 'prospects': case 'top20': case 'top25': case 'lapsed': { const a=acc(); if(!a) return {ok:false,text:'account not on the HubSpot list'}; return a.workedThisWeek?{ok:true,text:'activity logged '+fmtD(a.lastActivity)}:{ok:false,text:a.lastActivity?'last activity '+fmtD(a.lastActivity)+', nothing this week':'no activity ever'}; }
       case 'pipeline': { const d=s.pastList.concat(s.staleList).find(d=>short(d.name)===t.account); return d?{ok:false,text:/was due/.test(t.action)?'close date still '+fmtD(d.close):'still no activity since '+fmtD(d.lastActivity)}:{ok:true,text:'no longer flagged in HubSpot'}; }
@@ -73,15 +73,21 @@ window.ENG = (function(){
   function listFor(s){ const mine=tasks().filter(t=>t.rep===s.r.id).map(t=>{const e=evidence(s,t); const state=t.status==='open'&&e.ok?'done':t.status; return Object.assign({},t,{ev:e,state});});
     mine.sort((a,b)=>({open:0,blocked:1,missed:2,carried:3,done:4}[a.state]-{open:0,blocked:1,missed:2,carried:3,done:4}[b.state])||(a.prio||5)-(b.prio||5));
     mine.forEach((x,i)=>x.rank=i+1);
-    return {list:mine, confirmed:mine.filter(x=>x.state==='done').length, open:mine.filter(x=>x.state==='open').length, blocked:mine.filter(x=>x.state==='blocked').length, missed:mine.filter(x=>x.state==='missed').length, suggestions:suggest(s), lapsed:s.pa.filter(a=>(a.revenue||0)>=LARGE&&(a.days==null||a.days>LAPSED_DAYS))};
+    return {list:mine, confirmed:mine.filter(x=>x.state==='done').length, open:mine.filter(x=>x.state==='open').length, blocked:mine.filter(x=>x.state==='blocked').length, missed:mine.filter(x=>x.state==='missed').length, suggestions:suggest(s), lapsed:(s.acc||s.pa).filter(a=>(a.revenue||0)>=LARGE&&(a.days==null||a.days>LAPSED_DAYS))};
   }
   // one-off demo seed: Sue accepted the top suggestions once
   function seedOnce(reps){ if(store('seeded',false)) return; reps.forEach(r=>{ const s=M.repSummary(r); suggest(s).slice(0,r.team==='BDM'?9:5).forEach(x=>addTask(Object.assign({},x,{setBy:x.setBy||'Sue (from a rule)'}))); }); put('seeded',true); }
-  function forecast(s){ const m=M.today.slice(0,7); const inMonth=s.dueList.filter(d=>d.close.slice(0,7)===m);
+  // Forecast lines exactly as in Sue's brief, from HubSpot's Forecast category on deals closing this month.
+  // Forecast = closed won to date + Commit + weighted Best case + weighted pipeline (Pipeline and no category). Not forecasted is left out.
+  function forecast(s){ const m=M.today.slice(0,7); const F=s.fc;
+    if(F){ const g=k=>F[k]||{n:0,amt:0,weighted:0}; const W=(M.D.forecast.wonMonth||{})[s.r.id]||{n:0,amt:0};
+      const C=g('COMMIT'),B=g('BEST_CASE'),P=g('PIPELINE'),N=g('NONE'),O=g('OMIT'); const weighted=P.weighted+N.weighted;
+      return {month:m, real:true, won:W.amt, wonN:W.n, commit:C.amt, commitN:C.n, best:B.amt, bestN:B.n, bestWeighted:B.weighted, pipeline:P.amt+N.amt, pipelineN:P.n+N.n, weighted, omitN:O.n, omit:O.amt, forecast:W.amt+C.amt+B.weighted+weighted, noCategory:N.n, noCategoryValue:N.amt, inMonthN:C.n+B.n+P.n+N.n+O.n, inMonthValue:C.amt+B.amt+P.amt+N.amt+O.amt}; }
+    const inMonth=s.dueList.filter(d=>d.close.slice(0,7)===m);
     const commit=inMonth.filter(d=>/negotiation/i.test(d.stage)), best=inMonth.filter(d=>/quote sent/i.test(d.stage)), rest=inMonth.filter(d=>!commit.includes(d)&&!best.includes(d));
     const prob=d=>/create quote/i.test(d.stage)?0.6:/qualified/i.test(d.stage)?0.4:/needs/i.test(d.stage)?0.2:0.1;
     const won=s.won.filter(d=>d.close.slice(0,7)===m); const v=a=>sum(a.map(d=>d.amount)); const weighted=sum(rest.map(d=>(d.amount||0)*prob(d)));
-    return {month:m, won:v(won), wonN:won.length, commit:v(commit), commitN:commit.length, best:v(best), bestN:best.length, pipeline:v(rest), pipelineN:rest.length, weighted, forecast:v(won)+v(commit)+0.5*v(best)+weighted, noCategory:inMonth.length, inMonthValue:v(inMonth)};
+    return {month:m, real:false, won:v(won), wonN:won.length, commit:v(commit), commitN:commit.length, best:v(best), bestN:best.length, bestWeighted:0.5*v(best), pipeline:v(rest), pipelineN:rest.length, weighted, forecast:v(won)+v(commit)+0.5*v(best)+weighted, noCategory:inMonth.length, noCategoryValue:v(inMonth), inMonthN:inMonth.length, inMonthValue:v(inMonth)};
   }
   const lead = r => { const L=D.leads||{}; const id=L[r.region]||''; return id? (M.repById[id]||{}).name||'' : 'Sue'; };
   function reasons(list){ const c={}; list.forEach(d=>{const k=d.lostReason||'(no reason)';c[k]=(c[k]||0)+1;}); return Object.entries(c).sort((a,b)=>b[1]-a[1]); };
@@ -90,7 +96,7 @@ window.ENG = (function(){
     return {s, lead:lead(s.r), tasks:tk, f, gaps, meetingsWeek:s.ms.length, meetingsFortnight:s.ms.length+s.lm.length, newBiz:s.ms.concat(s.lm).filter(m=>/prospect|discovery|demo|qualify/i.test(m.type||'')).length, noType:s.g.noType.length,
       tasksSet:tk.list.length, tasksDone:tk.confirmed, tasksOpen:tk.open+tk.blocked+tk.missed, prospectsWorked:s.prospectsWorked, prospectsN:s.prospects.length, paActive:s.pa.filter(a=>a.status!=='needswork').length, paN:s.pa.length,
       johnDone:s.johnWorked, johnN:s.john.length, lapsedN:tk.lapsed.length, lapsedValue:sum(tk.lapsed.map(a=>a.revenue)), outOfDate:s.past.n+s.stale.n+s.noNext.length, outOfDateValue:s.past.amt+s.stale.amt,
-      won:s.won.length, lost:s.lost.length, winRate:M.pct(s.won.length,s.won.length+s.lost.length), topReasons:lostR.slice(0,2), demosNoFeedback:s.g.demos.filter(m=>m.start.slice(0,10)<=M.today).length, largeNoSponsor:s.dueList.filter(d=>(d.amount||0)>=LARGE).length, activity:s.calls.thisWeek+s.emails.thisWeek };
+      won:s.won.length, lost:s.lost.length, winRate:M.pct(s.won.length,s.won.length+s.lost.length), won90:(s.c90.won||{n:0}).n, won90Amt:(s.c90.won||{amt:0}).amt, lost90:(s.c90.lost||{n:0}).n, lost90Amt:(s.c90.lost||{amt:0}).amt, disq90:(s.c90.disqualified||{n:0}).n, uncont90:(s.c90.uncontactable||{n:0}).n, winRate90:M.pct((s.c90.won||{n:0}).n,(s.c90.won||{n:0}).n+(s.c90.lost||{n:0}).n), disqShare90:M.pct((s.c90.disqualified||{n:0}).n,['won','lost','disqualified','uncontactable'].reduce((a,k)=>a+((s.c90[k]||{n:0}).n),0)), topReasons:lostR.slice(0,2), demosNoFeedback:s.g.demos.filter(m=>m.start.slice(0,10)<=M.today).length, largeNoSponsor:s.dueList.filter(d=>(d.amount||0)>=LARGE).length, activity:s.calls.thisWeek+s.emails.thisWeek };
   }
   function teamReasons(){ return reasons(D.deals.lost); }
   return {SEED, directives, saveDirective, wsById, DUE, LARGE, tasks, addTask, updateTask, deleteTask, addNote, dismiss, dismissed, suggest, evidence, listFor, seedOnce, msgs, addMsg, replies, addReply, resetAll, forecast, rollup, lead, reasons, teamReasons};

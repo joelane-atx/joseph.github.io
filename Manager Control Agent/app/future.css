@@ -54,9 +54,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 .sec{margin:18px 0 8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cy)}
 .need{font-size:12px;color:#fbbf24;border:1px dashed rgba(245,158,11,.45);border-radius:8px;padding:6px 10px;background:rgba(245,158,11,.06);margin-top:6px}
 .rail{position:relative;height:6px;border-radius:6px;background:rgba(255,255,255,.08)}.rail i{position:absolute;inset:0;border-radius:6px;background:linear-gradient(90deg,var(--vi),var(--cy),var(--gr));box-shadow:0 0 14px rgba(34,229,255,.6)}
-.nav{position:sticky;top:0;height:100vh;background:rgba(3,5,12,.9);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:3px}
+.nav{position:sticky;top:0;height:100vh;background:rgba(3,5,12,.9);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;scrollbar-width:thin}
 .nav .logo{font-weight:900;font-size:16px;padding:4px 10px 14px;line-height:1.2}.nav .logo span{color:var(--cy)}
-.nav a{display:flex;gap:9px;align-items:center;color:var(--mut);text-decoration:none;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer}.nav a i{width:7px;height:7px;border-radius:50%;background:#2b3550;flex:none}.nav a.on{background:rgba(34,229,255,.1);color:var(--cy)}.nav a.on i{background:var(--cy);box-shadow:0 0 8px var(--cy)}.nav a:hover{background:rgba(255,255,255,.05)}
+.nav a{display:flex;gap:9px;align-items:center;color:var(--mut);text-decoration:none;padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer;flex:none}.nav a i{width:7px;height:7px;border-radius:50%;background:#2b3550;flex:none}.nav a.on{background:rgba(34,229,255,.1);color:var(--cy)}.nav a.on i{background:var(--cy);box-shadow:0 0 8px var(--cy)}.nav a:hover{background:rgba(255,255,255,.05)}
 .nav .sec{padding:0 10px}.nav .foot{margin-top:auto;font-size:11px;color:var(--mut2);padding:10px;line-height:1.4}
 .layout{display:grid;grid-template-columns:224px 1fr;min-height:100vh}@media(max-width:900px){.layout{grid-template-columns:1fr}.nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap}.nav .foot,.nav .sec{display:none}}
 .msg{background:#fff;color:#111;border-radius:12px;padding:12px 14px;font:13.5px/1.5 "Segoe UI",system-ui,sans-serif;max-width:560px}
@@ -99,3 +99,5 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 [data-theme="light"] tr.click:hover td{background:rgba(14,116,144,.05)}
 [data-theme="light"] .tag{opacity:.95}
 .theme-btn{font:inherit;font-size:12.5px;padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--mut);cursor:pointer}
+/* phone: keep the platform inside the screen */
+@media(max-width:900px){.layout>*{min-width:0}.topbar{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}.topbar>span{flex-wrap:wrap}.pills{flex-wrap:wrap}main{padding-left:max(16px,env(safe-area-inset-left,0px))!important;padding-right:max(16px,env(safe-area-inset-right,0px))!important}.opsgrid,.ops3,.grid.g2,.grid.g21,.grid.g12,.grid.g3,.grid.g4{grid-template-columns:1fr!important}.card{overflow-x:auto}.bgfx{overflow:hidden}}

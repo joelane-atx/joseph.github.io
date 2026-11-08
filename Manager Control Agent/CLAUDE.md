@@ -33,6 +33,8 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 
 - `v1.html`: V1, the simple version from the 3 Nov call. One screen, real reps, Sue's three priorities, leaderboard, one nudge per person, drill-down drawer, a short task list (tasks entered here carry setBy 'Sue (V1)'), Teams message to copy. Visibility first. Sue can flag or comment on any priority account (`app/flags.js`, saved in the browser under `mca.flags`), the rep replies, and flags marked for HubSpot wait in a notes queue: copied by hand for now, never written from this folder.
 - `v2.html`: V2, the full platform, in progress. Built on the ops version plus Initiative board (one tab per initiative from `data/initiatives.js`) and Tool setup (Claude, Outlook, HubSpot per person from `rollout` in the data, overrides saved in the browser under `mca.setup`). Plan and status in `V2-PLAN.md`.
+- `demo-script.html`: run of show for Mon 9 Nov with live numbers from the snapshot, each point tagged to its source (call, brief, HubSpot), and the decisions to ask Sue for.
+- Accuracy rules (checked 8 Nov against the brief): top 20 per BDM = Target Accounts (stand-in for the new Priority account property), Tier 1 first then lifetime revenue; strategic prospects and John Top 25 are separate lists; forecast uses HubSpot Forecast category (won + Commit + weighted Best case + weighted Pipeline and no category; Not forecasted left out); win, loss and disqualified over 90 days come from closed stages per owner.
 - `prototypes.html`: start here, links the three prototypes and the demo script.
 - `weekly-list.html`: simple prototype, My Week. `command-center.html`: advanced prototype, Sales Command Center. `app/common.js`: shared logic. `data/initiatives.js`: the initiative catalogue (no personal data).
 - `IDEAS.md`: every initiative, how it is tracked, login options, the ladder, what to build next.
@@ -42,6 +44,8 @@ Later: two named strategic prospects per BDM worked weekly, customer portal onbo
 - `README.md`: how to open it, how to refresh the data, what to show Sue, what is next.
 
 ## How to refresh `data/live.js` (read only)
+
+Latest build: 9 BDMs, 7 SAMs and 5 CSMs (HubSpot teams BDMs, SAM Team, CSMs). The snapshot also holds `forecast` (Forecast category per owner for deals closing this month, closed won this month, Direct Sales totals) and `closed90` (won, lost, disqualified per owner over 90 days).
 
 Ask this chat: "refresh the Manager Control data". It then reads HubSpot with the HubSpot connector (never writes) for the 9 BDMs and 7 SAMs and rewrites `data/live.js` in the shape below. Window: this week (Mon to Sun) and last week.
 

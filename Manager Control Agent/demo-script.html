@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Script</title>
+<script>(function(){var t;try{t=localStorage.getItem("mca.theme")}catch(e){}document.documentElement.dataset.theme=t||"dark";})();</script>
+<link rel="stylesheet" href="app/future.css">
+<style>
+.wrap{max-width:1100px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.step{display:grid;grid-template-columns:56px 1fr;gap:14px;margin-bottom:12px}.step .no{font-family:"JetBrains Mono",Menlo,monospace;font-size:22px;font-weight:800;color:var(--cy);text-align:right;padding-top:12px}
+.step .card h3{margin-bottom:6px}.step ul{margin:6px 0 0;padding-left:18px}.step li{margin:4px 0;font-size:13.5px}.step li b{color:var(--ink)}
+.src{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--mut);margin-left:6px;vertical-align:1px}
+.src.call{color:var(--vi);border-color:rgba(139,92,246,.4)}.src.brief{color:var(--am);border-color:rgba(245,158,11,.4)}.src.hsrc{color:var(--gr);border-color:rgba(61,255,162,.35)}
+.go{font-size:12px;margin-left:8px}.time{color:var(--mut);font-size:12px;font-weight:400;margin-left:6px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}
+table.rv td,table.rv th{font-size:12.5px}
+</style></head>
+<body>
+<div class="bgfx"><div class="g1"></div><div class="g2"></div><div class="dots"></div><div class="scan"></div></div>
+<div class="wrap">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="kick mono">// demo_script<b>.joe_sue</b> --meeting=2026-11-09T08:00CST</span><span style="display:flex;gap:8px"><a class="btn ghost" href="prototypes.html" style="text-decoration:none">All versions</a><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></span></div>
+ <h1>Monday with Sue: <span class="g">run of show</span></h1>
+ <p class="sub" id="lead"></p>
+ <div class="kv" id="kv"></div>
+ <div id="steps"></div>
+ <div class="card" style="margin-top:14px"><h3>What is real, what is kept in the browser, what is not built yet</h3><table class="rv"><thead><tr><th>Real, from HubSpot (read only)</th><th>Kept in this browser for the demo</th><th>Not built yet, needs a decision</th></tr></thead><tbody><tr><td>People and teams, priority accounts, strategic prospects, John Top 25, meetings with type and outcome, open deals and close dates, stale deals, forecast category, won, lost and disqualified, calls, emails, HubSpot tasks</td><td>Sue's tasks and their status, flags and comments, rep replies, Teams messages (queued, not sent), tool setup status, announcements</td><td>Sending Teams messages, writing notes or tasks to HubSpot, sign-in and hosting, demo feedback field, Priority account property, meeting source, overdue invoices from finance</td></tr></tbody></table></div>
+ <p class="small muted" style="margin-top:12px">Sources: <span class="src call">call</span> Otter "Joe / Sue", Tue 3 Nov 2026 · <span class="src brief">brief</span> "AI Sales Manager Agent: Brief", Sue, 2 Nov 2026 · <span class="src hsrc">HubSpot</span> live snapshot, read only.</p>
+</div>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script>
+<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script>
+<script>
+(function(){
+const M=window.MCA,E=window.ENG,D=M.D,esc=M.esc,chf=M.chf,sum=a=>a.reduce((x,y)=>x+(y||0),0),pct=M.pct;
+const R=D.reps.map(r=>{const s=M.repSummary(r),f=E.forecast(s),x=E.rollup(s); return {r,s,f,x,top:s.pa.slice(0,M.cap(r))};});
+const B=R.filter(z=>z.r.team==='BDM');
+const bTop=sum(B.map(z=>z.top.length)), bCap=B.length*20, prosN=sum(B.map(z=>Math.min(2,z.s.prospects.length))), prosW=sum(B.map(z=>Math.min(2,z.s.prospectsWorked)));
+const ms=R.flatMap(z=>z.s.ms.concat(z.s.lm)), noType=ms.filter(m=>!m.type).length;
+const past=sum(R.map(z=>z.s.past.n)), pastAmt=sum(R.map(z=>z.s.past.amt)), worstPast=R.slice().sort((a,b)=>b.s.past.n-a.s.past.n)[0];
+const fc=sum(R.map(z=>z.f.forecast)), won=sum(R.map(z=>z.f.won)), nocat=sum(R.map(z=>z.f.noCategory));
+const w90=sum(R.map(z=>z.x.won90)), l90=sum(R.map(z=>z.x.lost90)), d90=sum(R.map(z=>z.x.disq90));
+const lowWin=R.filter(z=>z.x.won90+z.x.lost90>=20).sort((a,b)=>a.x.winRate90-b.x.winRate90)[0];
+let ds=''; try{ const L=(D.forecast.directSales||'').split('\n').filter(l=>/^Direct Sales/.test(l)).map(l=>l.split('\t')); const n=L.reduce((a,p)=>a+(+p[2]||0),0), nc=L.filter(p=>/Unassigned/.test(p[1])).reduce((a,p)=>a+(+p[2]||0),0); ds=n+' Direct Sales deals close in November, '+nc+' with no forecast category (brief, 2 Nov: 211 and 82)'; }catch(e){}
+document.getElementById('lead').innerHTML='HubSpot snapshot '+esc((D.generated||'').slice(0,16))+' · '+esc(M.W.label)+' (complete) · '+R.length+' people: '+B.length+' BDMs, '+R.filter(z=>z.r.team==='SAM').length+' SAMs, '+R.filter(z=>z.r.team==='CSM').length+' CSMs. Every number below is calculated live from that snapshot.';
+const tile=(l,v,s,c)=>'<div class="tile"><div class="l">'+l+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="s">'+s+'</div></div>';
+document.getElementById('kv').innerHTML=tile('BDM top 20 lists set up',bTop+' / '+bCap,'accounts marked in HubSpot','r')+tile('Strategic prospects worked',prosW+' / '+prosN,'BDMs, last week',prosW<prosN?'r':'ok')+tile('Meetings with no type',pct(noType,ms.length||1)+'%',noType+' of '+ms.length+', two weeks','r')+tile('Deals past close date',past,chf(pastAmt),'r')+tile('November forecast',chf(fc),chf(won)+' won · '+nocat+' with no category','glow')+tile('Win rate, 90 days',pct(w90,w90+l90||1)+'%',w90+' won · '+l90+' lost · '+d90+' disqualified');
+const st=(no,title,time,link,items)=>'<div class="step"><div class="no">'+no+'</div><div class="card"><h3>'+title+'<span class="time">'+time+'</span>'+(link?'<a class="go" style="color:var(--cy)" href="'+link[0]+'">'+link[1]+' →</a>':'')+'</h3><ul>'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul></div></div>';
+const src=(k)=>'<span class="src '+(k==='hs'?'hsrc':k)+'">'+({call:'call',brief:'brief',hs:'HubSpot'}[k])+'</span>';
+let h='';
+h+=st('01','Open with what she asked for','1 min',null,['Start with three priorities: top 20 accounts per BDM and top 10 per SAM with new business activity; meeting types and outcomes so bad demos, lost deals and competitor feedback are visible; then pipeline and forecast. '+src('call'),'Keep it clear and simple, without scrolling, and drill down for detail. '+src('call'),'Turn the strategy into a short, literal to do list per person, every week, checked against HubSpot. '+src('brief')]);
+h+=st('02','V1: her three priorities on one screen','5 min',['v1.html','Open V1'],[
+ 'Card 1, priority accounts: only <b>'+bTop+' of '+bCap+'</b> BDM top 20 accounts are marked in HubSpot. All '+B.filter(z=>z.s.prospects.length>=2).length+' BDMs have 2 strategic prospects named, and <b>'+prosW+' of '+prosN+'</b> were worked last week. '+src('hs')+' The brief asks for a new "Priority account" property. '+src('brief'),
+ 'Card 2, meetings: <b>'+noType+' of '+ms.length+'</b> meetings in the last two weeks have no type ('+pct(noType,ms.length||1)+'%; the brief found 54% from August to October). '+src('hs')+src('brief'),
+ 'Card 3, pipeline: <b>'+past+'</b> open deals have a close date in the past, '+esc(worstPast.r.name)+' alone has '+worstPast.s.past.n+'. November forecast <b>'+chf(fc)+'</b> from the real forecast category; '+esc(ds)+'. '+src('hs')+src('brief'),
+ 'Click a card to sort the leaderboard worst first. Click a name to open the drawer: accounts, meetings, pipeline, nudges and tasks.',
+ 'Use the team pills: the brief is built for BDMs, with CSMs in phase 2. '+src('brief')]);
+h+=st('03','Flag an account, see the rep reply','3 min',['v1.html#p-'+(B.find(z=>z.r.name.startsWith('Nathan'))||B[0]).r.id,'Open Nathan'],[
+ 'On an account, click Flag or comment. Pick "At risk", write one line, keep "add as a HubSpot note" ticked.',
+ 'Switch View as to the rep: the flag shows on their account and they reply in place.',
+ 'Top bar: HubSpot notes queue. Nothing is written to HubSpot; each note waits for a yes. Ask Sue if notes may be posted after her yes.']);
+h+=st('04','V2: the full platform','8 min',['v2.html','Open V2'],[
+ '<b>Tasks</b>: Sue sets tasks for one person, a team or all BDMs, in the brief\'s format (account, contact, action, due, done when). HubSpot confirms them on Friday. '+src('brief'),
+ '<b>Messages</b>: ask for an update in Teams. Queued, not sent, until IT allows the agent to post.',
+ '<b>Friday report</b> and <b>People</b>: the team roll up with gaps first, columns as in the brief. '+src('brief'),
+ '<b>Forecast</b>: Commit, Best case, weighted pipeline, and deals with no category, from HubSpot. <b>Win, loss, disqualified</b>: 90 days per person; lowest win rate with 20 or more closed: '+(lowWin?esc(lowWin.r.name)+' at '+lowWin.x.winRate90+'%':'n/a')+'. '+src('hs'),
+ '<b>Initiative board</b>: one tab per initiative, who is on or off track. <b>Tool setup</b>: Claude, Outlook and HubSpot per person with today\'s chase message. '+src('call'),
+ '<b>View as</b> Team Lead (Marcus or Matt), John, or a rep: same platform, their own scope. '+src('brief')]);
+h+=st('05','Decisions to ask Sue for','3 min',['v2.html','Open questions in V2'],[
+ 'Create the "Priority account" property and have every BDM mark their top 20 this week (today '+bTop+' of '+bCap+').',
+ 'Pilot: EMEA with Marcus\'s team for 4 weeks, as the brief suggests. Delivery: Teams, email or HubSpot task queue?',
+ 'May the agent post notes and tasks to HubSpot after her yes? Today it is read only.',
+ 'Forecast headline: Commit only, or Commit plus weighted Best case and pipeline? Category on every deal closing in the month?',
+ 'Scope: BDMs first, SAMs and CSMs in phase 2, or all at once?',
+ 'Hosting with sign-in (Netlify and Claude API) once the pilot proves value. Cost estimate before any spend.']);
+document.getElementById('steps').innerHTML=h;
+document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('mca.theme',t)}catch(e){}};
+})();
+</script></body></html>
