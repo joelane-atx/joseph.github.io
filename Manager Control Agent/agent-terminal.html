@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Terminal</title>
+<script>(function(){var t;try{t=localStorage.getItem("mca.theme")}catch(e){}document.documentElement.dataset.theme=t||"dark";})();</script>
+<link rel="stylesheet" href="app/future.css">
+<style>
+/* Agent Terminal: how Sue's sales agent works, agent by agent, every task with a reason */
+:root{--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+.at{max-width:1500px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 30px max(16px,env(safe-area-inset-left,0px))}
+.chrome{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;color:var(--mut);padding:6px 0 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chrome .dots i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.chrome .sp{flex:1;text-align:center}
+.mode{border:1px solid var(--cy);color:var(--cy);border-radius:5px;padding:2px 7px}
+.hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:16px 0}
+.face{width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d7dde8 60%,#9aa6b8);box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 -6px 12px rgba(0,0,0,.15);display:grid;place-items:center;position:relative}
+.face:before,.face:after{content:"";position:absolute;top:31px;width:9px;height:22px;border-radius:5px;background:#0b1220;animation:blink 5s infinite}.face:before{left:30px}.face:after{right:30px}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.ttl{font-family:var(--mono);font-size:30px;font-weight:800;letter-spacing:-.01em}.ttl span{color:var(--cy)}.ver{font-size:11px;border:1px solid var(--line);border-radius:5px;padding:2px 6px;color:var(--mut);vertical-align:6px;margin-left:6px;font-weight:500}
+.run{font-family:var(--mono);font-size:13px;color:var(--am);margin-top:6px}.run i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--am);margin-right:6px;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.badge{display:inline-block;font-family:var(--mono);font-size:10.5px;border:1px solid var(--rd);color:var(--rd);border-radius:5px;padding:2px 7px;margin-top:6px}
+.tag2{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:6px}
+.big4{display:grid;grid-template-columns:repeat(2,minmax(120px,auto));gap:6px 30px;font-family:var(--mono)}
+.big4 div b{display:block;font-size:30px;font-weight:800;letter-spacing:-.02em}.big4 div span{font-size:10.5px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase}
+.big4 .g b{color:var(--gr)}.big4 .r b{color:var(--rd)}
+.grid3{display:grid;grid-template-columns:270px minmax(0,1fr);gap:18px}
+@media(max-width:1000px){.grid3,.hero{grid-template-columns:1fr}.hero{justify-items:start}}
+.h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between;margin:4px 0 8px}
+.agent{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--card);position:relative}
+.agent .top{display:flex;align-items:center;gap:10px}.agent .ic{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff;flex:none}
+.agent .nm{font-family:var(--mono);font-weight:800;font-size:14px;letter-spacing:.02em}.agent .st{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;color:#fff}
+.agent .ds{font-size:11.5px;color:var(--mut);margin:2px 0 0 38px}.agent .rule{font-size:12px;font-weight:700;margin:7px 0 2px}.agent .last{font-family:var(--mono);font-size:10.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agent.hot{border-color:var(--rd);box-shadow:0 0 0 1px var(--rd),0 8px 24px -10px var(--rd)}
+.stamp{position:absolute;right:-6px;top:-12px;transform:rotate(-6deg);font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--rd);border:2px solid var(--rd);border-radius:5px;padding:2px 8px;background:var(--bg)}
+.flow{border:1px solid var(--line);border-radius:12px;background:var(--card);position:relative;overflow:hidden}
+.flow svg{display:block;width:100%;height:auto}
+.chips{position:absolute;inset:0;pointer-events:none}
+.chip2{position:absolute;font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:5px 9px;min-width:110px;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:opacity .5s,transform .5s}
+.chip2 b{display:block;font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.chip2 span{color:var(--mut);font-size:10px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--card)}.stat .l{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}.stat .v{font-family:var(--mono);font-size:22px;font-weight:800;margin-top:2px}.stat .s{font-size:10.5px;color:var(--mut)}
+.row2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px;margin-top:12px}@media(max-width:900px){.row2{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--card)}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;font-family:var(--mono);font-size:12.5px;margin-top:8px}.kv span{color:var(--mut)}.kv b{font-weight:700}
+.tt{font-family:var(--mono);font-size:22px;font-weight:800}
+.tail{font-family:var(--mono);font-size:11.5px;color:var(--mut);line-height:1.6;height:150px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.tail .ln b{color:var(--ink);font-weight:600}.cur{display:inline-block;width:7px;height:13px;background:var(--gr);vertical-align:-2px;animation:pulse 1s infinite}
+.res{display:grid;grid-template-columns:70px 1fr auto;gap:8px 12px;align-items:center;font-family:var(--mono);font-size:12.5px;margin-top:8px}.res .bar{height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}.res .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.log{margin-top:12px}.lg{display:grid;grid-template-columns:78px 78px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:7px 4px;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:12.5px}
+.lg .t{color:var(--mut)}.lg .a{font-size:10px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;text-align:center;padding:2px 0}
+.lg .s b{font-weight:800;color:var(--ink)}.lg .s div{color:var(--mut);font-size:11.5px;margin-top:2px}.lg .s div em{font-style:normal;color:var(--rd)}.lg .vv{text-align:right;white-space:nowrap}.lg .vv.ok{color:var(--gr)}.lg .vv.r{color:var(--rd)}
+.lg.new{animation:slide .6s ease}@keyframes slide{from{background:rgba(34,229,255,.12)}to{background:transparent}}
+.lg.last{border-left:3px solid var(--cy);background:rgba(34,229,255,.05)}
+.A-read{color:var(--cy)}.A-flag{color:var(--rd)}.A-task{color:var(--am)}.A-confirm{color:var(--gr)}.A-skip{color:var(--mut)}.A-ask{color:var(--vi)}.A-win{color:var(--gr)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.ctl select{font:inherit;font-size:12px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:5px 8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head>
+<body>
+<div class="bgfx"><div class="dots"></div></div>
+<div class="at">
+ <div class="chrome"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="sp">Sales Agent Terminal · weekly cycle · seven agents · log first</span><span class="ctl"><select id="who" aria-label="Agent for"></select><a class="btn ghost" href="v1.html" style="text-decoration:none">V1</a><a class="btn ghost" href="v2.html" style="text-decoration:none">V2</a><span class="mode">read only · nothing sent</span><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></span></div>
+ <div id="app"></div>
+</div>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script>
+<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script>
+<script>
+(function(){
+const M=window.MCA,E=window.ENG,D=M.D,esc=M.esc,chf=M.chf,fmtD=M.fmtD,sum=a=>a.reduce((x,y)=>x+(y||0),0),first=n=>n.split(' ')[0];
+E.seedOnce(D.reps);
+const short=s=>(s||'').split('|')[0].trim().slice(0,46);
+const sel=document.getElementById('who'); sel.innerHTML='<option value="all">Agent for: whole team</option>'+['BDM','SAM','CSM'].map(t=>'<optgroup label="'+t+'s">'+D.reps.filter(r=>r.team===t).map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('')+'</optgroup>').join('');
+let who='all', timer=null;
+const dayName=d=>new Date(d+'T00:00:00Z').toLocaleDateString('en-GB',{weekday:'short',timeZone:'UTC'});
+const stamp=(iso,fallback)=>{ if(!iso) return fallback; const d=iso.slice(0,10), t=iso.length>11?iso.slice(11,16):'09:00'; return {k:d+' '+t, lab:dayName(d)+' '+t}; };
+function build(){
+  const reps=D.reps.filter(r=>who==='all'||r.id===who); const S=reps.map(r=>M.repSummary(r)); const W=M.W;
+  const L=[]; const add=(when,a,subj,reason,val,cls)=>{L.push({k:when.k,t:when.lab,a,subj,reason,val:val||'',cls:cls||''});};
+  const mon={k:W.start+' 06:00',lab:'Mon 06:00'}; const fri=(()=>{const d=new Date(W.start+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+4); return d.toISOString().slice(0,10);})();
+  S.forEach((s,i)=>{ const f=first(s.r.name);
+    add({k:W.start+' 05:'+String(10+i).padStart(2,'0'),lab:'Mon 05:'+String(10+i).padStart(2,'0')},'read',s.r.name,'read '+s.pa.length+' priority accounts, '+s.prospects.length+' prospects, '+(s.ms.length+s.lm.length)+' meetings, '+(s.due.n+s.past.n)+' open deals in HubSpot','');
+    s.pa.filter(a=>a.status==='buying').slice(0,1).forEach(a=>add(mon,'skip',a.name,'open deal already, buying: visibility only, no task','no task'));
+    const tk=E.listFor(s); tk.list.slice(0,3).forEach(t=>{ const d=(E.directives().find(x=>x.id===t.ws)||{name:t.ws}); add({k:W.start+' 06:'+String(20+t.rank).padStart(2,'0'),lab:'Mon 06:'+String(20+t.rank).padStart(2,'0')},'task',t.account,'rule: '+d.name+' · '+t.action,'due '+(t.due||'').split(' ')[0]); });
+    tk.list.filter(t=>t.state==='done').slice(0,2).forEach(t=>add({k:fri+' 16:0'+(i%10),lab:'Fri 16:0'+(i%10)},'confirm',t.account,'HubSpot: '+t.ev.text,'done','ok'));
+    s.ms.concat(s.lm).filter(m=>!m.type).slice(0,2).forEach(m=>add(stamp(m.start.replace(' ','T'),mon),'flag',m.company||m.title||'Meeting','meeting has no type · '+f+' gets a task to set it within 2 working days','no type','r'));
+    s.prospects.filter(a=>!a.workedThisWeek).slice(0,2).forEach(a=>add({k:fri+' 17:00',lab:'Fri 17:00'},'flag',a.name,'strategic prospect, no outreach logged this week'+(a.lastActivity?' · last '+fmtD(a.lastActivity):''),'red','r'));
+    s.pastList.slice(0,1).forEach(d=>add(mon,'flag',short(d.name),'close date '+fmtD(d.close)+' is in the past · '+s.past.n+' like this for '+f,chf(d.amount),'r'));
+    s.won.filter(d=>d.close>=W.start&&d.close<=W.end).slice(0,2).forEach(d=>add(stamp(d.close+'T15:00',mon),'win',short(d.name),'closed won, logged by '+f,d.amount?'+'+chf(d.amount):'won','ok'));
+    E.msgs().filter(m=>m.rep===s.r.id).slice(0,1).forEach(m=>add({k:W.start+' 12:00',lab:'Wed 12:00'},'ask',s.r.name,'Teams ask queued for Sue to send: '+m.text.slice(0,70),'queued'));
+    FLAGS.forRep(s.r.id).slice(0,2).forEach(e=>add({k:e.at+' 10:00',lab:dayName(e.at)+' 10:00'},'flag',e.accName,'Sue flagged: '+FLAGS.label(e.flag)+' · '+e.text.slice(0,60),'Sue','r'));
+  });
+  L.sort((a,b)=>a.k<b.k?-1:a.k>b.k?1:0);
+  const cnt=k=>L.filter(x=>x.a===k).length;
+  const tasks=sum(S.map(s=>E.listFor(s).list.length)), done=sum(S.map(s=>E.listFor(s).confirmed)), missedOpen=tasks-done;
+  return {S,L,cnt,tasks,done,missedOpen,reps};
+}
+function render(){ clearInterval(timer); const B=build(); const S=B.S, L=B.L;
+  const records=sum(S.map(s=>s.acc.length+s.ms.length+s.lm.length+s.due.n+s.past.n));
+  const wo={prospects:0,top20:1,top25:2,pipeline:3}; const ex=S.flatMap(s=>E.listFor(s).list.map(t=>({s,t}))).sort((a,b)=>((wo[a.t.ws]??9)-(wo[b.t.ws]??9))||(a.t.state==='done'?1:0)-(b.t.state==='done'?1:0)||(a.t.prio||9)-(b.t.prio||9))[0];
+  const lastFlag=L.filter(x=>x.a==='flag').slice(-1)[0];
+  const ag=[
+   ['READER','#2a78d6','R','READ','reads HubSpot, never writes','read only, every Monday 05:00',B.reps.length+' people · '+records+' records'],
+   ['RULE CHECK','#e5484d','!','FLAG',"Sue's rules: what needs action",'nothing becomes a task without a rule',lastFlag?'flagged '+lastFlag.subj:'nothing flagged',true],
+   ['TASK BUILDER','#eda100','T','BUILD','one account, one action, one due date','8 to 15 a week, ranked',B.tasks+' tasks · '+B.reps.length+' people'],
+   ['EVIDENCE','#1baf7a','✓','CHECK','HubSpot confirms each task','reps never tick their own boxes',B.done+' confirmed · '+B.missedOpen+' open'],
+   ['MESSENGER','#8b5cf6','M','QUEUE','Monday list, Wednesday nudge, Friday report','queued for Sue, never sent alone',E.msgs().length+' asks queued'],
+   ['LOGGER','#0e7490','L','WRITE','writes every decision','no task without a reason','line #'+L.length],
+   ['SUE','#0b1220','S','READING','sets the rules, says yes','stopped asking, started reading',FLAGS.queue().length+' notes waiting for a yes']];
+  let h='<div class="hero"><div class="face" aria-hidden="true"></div><div><div class="ttl">Sales Agent <span>Terminal</span><span class="ver">v1 · '+esc(W_label())+'</span></div><div class="run"><i></i>running · weekly cycle · snapshot '+esc((D.generated||'').slice(0,16))+'</div><div class="badge">'+(lastFlag?'RULE CHECK · FLAGGED '+esc(lastFlag.subj.toUpperCase().slice(0,28)):'RULE CHECK · CLEAR')+'</div><div class="tag2">every task gets a reason</div></div>'
+   +'<div class="big4"><div><b>'+B.tasks+'</b><span>tasks set</span></div><div><b>'+L.length+'</b><span>log lines</span></div><div class="g"><b>'+B.done+'</b><span>confirmed</span></div><div class="r"><b>'+B.cnt('flag')+'</b><span>flags</span></div></div></div>';
+  h+='<div class="grid3"><div><div class="h"><span>Agents</span><span>'+ag.length+' online</span></div>'+ag.map(a=>'<div class="agent'+(a[7]?' hot':'')+'">'+(a[7]&&lastFlag?'<span class="stamp">FLAGGED</span>':'')+'<div class="top"><span class="ic" style="background:'+a[1]+'">'+a[2]+'</span><span class="nm" style="color:'+(a[0]==='SUE'?'var(--ink)':a[1])+'">'+a[0]+'</span><span class="st" style="background:'+a[1]+'">'+a[3]+'</span></div><div class="ds">'+a[4]+'</div><div class="rule">'+a[5]+'</div><div class="last">'+esc(a[6])+'</div></div>').join('')+'</div>';
+  h+='<div><div class="h"><span>Live flow · read → check → build → evidence → report</span><span>checked '+records+'</span></div><div class="flow" id="flow">'+flowSVG()+'<div class="chips" id="chips"></div></div>';
+  h+='<div class="stats"><div class="stat"><div class="l A-flag">▲ Flagged</div><div class="v">'+B.cnt('flag')+'</div><div class="s">'+B.cnt('skip')+' skipped, already buying</div></div><div class="stat"><div class="l A-task">◆ Tasks</div><div class="v">'+(B.reps.length?Math.round(B.tasks/B.reps.length):0)+' / person</div><div class="s">rule: 8 to 15 per BDM</div></div><div class="stat"><div class="l A-read">● Logger</div><div class="v">line #'+L.length+'</div><div class="s">each with a reason</div></div><div class="stat"><div class="l A-confirm">✓ Confirmed</div><div class="v">'+B.done+'</div><div class="s">by HubSpot activity</div></div></div>';
+  h+='<div class="row2"><div class="panel"><div class="h"><span>Task · set vs confirmed</span><span class="'+(ex&&ex.t.state==='done'?'A-confirm':'A-task')+'">'+(ex?esc(ex.t.state==='done'?'confirmed':'open'):'')+'</span></div>'+(ex?'<div class="tt">'+esc(short(ex.t.account))+'</div><div class="kv"><span>person</span><b>'+esc(ex.s.r.name)+'</b><span>action</span><b>'+esc(ex.t.action)+'</b><span>contact</span><b>'+esc(ex.t.contact||'')+'</b><span>due</span><b>'+esc(ex.t.due||'')+'</b><span>done when</span><b>'+esc(ex.t.doneWhen||ex.t.evidence||'')+'</b><span>HubSpot</span><b class="'+(ex.t.ev.ok?'ok':'r')+'">'+esc(ex.t.ev.text)+'</b><span>reason</span><b class="A-task">rule: '+esc((E.directives().find(d=>d.id===ex.t.ws)||{name:ex.t.ws}).name)+'</b></div>':'<p class="muted">No tasks yet.</p>')+'</div>';
+  h+='<div class="panel"><div class="h"><span>$ tail -f weekly.log</span><span>'+L.length+' lines</span></div><div class="tail" id="tail"></div></div></div>';
+  const T=B.tasks||1; h+='<div class="panel" style="margin-top:12px"><div class="h"><span>Result · Monday list vs Friday evidence</span><span>'+esc(W_label())+'</span></div><div class="res"><span>MONDAY</span><span class="bar"><i style="width:100%;background:var(--mut)"></i></span><b>'+B.tasks+' tasks</b><span>FRIDAY</span><span class="bar"><i style="width:'+Math.round(100*B.done/T)+'%;background:var(--gr)"></i></span><b class="ok">'+B.done+' confirmed · '+M.pct(B.done,T)+'%</b><span></span><span class="small muted">target in the brief: 80% task completion</span><span></span></div></div>';
+  h+='<div class="panel log"><div class="h"><span>Log</span><span>reading the log · newest at the bottom</span></div><div id="log"></div></div></div></div>';
+  document.getElementById('app').innerHTML=h;
+  // log: show all but the last 8, then stream the last 8 in
+  const logEl=document.getElementById('log'), tailEl=document.getElementById('tail'), chips=document.getElementById('chips');
+  const row=(x,cls)=>'<div class="lg '+(cls||'')+'"><span class="t">'+esc(x.t)+'</span><span class="a A-'+x.a+'">'+x.a+'</span><span class="s"><b>'+esc(x.subj)+'</b><div>reason: '+esc(x.reason)+'</div></span><span class="vv '+x.cls+'">'+esc(x.val)+'</span></div>';
+  const head=L.slice(Math.max(0,L.length-22),Math.max(0,L.length-8)), stream=L.slice(Math.max(0,L.length-8));
+  logEl.innerHTML=head.map(x=>row(x)).join(''); let tl=L.slice(0,Math.max(0,L.length-8)).slice(-7).map(x=>x.t+'  '+x.a.toUpperCase().padEnd(7,' ')+'  '+x.subj.slice(0,28));
+  const drawTail=()=>{tailEl.innerHTML=tl.slice(-7).map(t=>'<div class="ln">'+esc(t).replace(/^(\S+ \S+)/,'<b>$1</b>')+'</div>').join('')+'<div class="ln">$ <span class="cur"></span></div>';};
+  drawTail(); let i=0; const pos=[[4,6],[30,3],[56,6],[72,40],[8,44]];
+  const step=()=>{ if(i>=stream.length){clearInterval(timer);return;} const x=stream[i++]; logEl.querySelectorAll('.lg.last').forEach(e=>e.classList.remove('last')); logEl.insertAdjacentHTML('beforeend',row(x,'new last')); tl.push(x.t+'  '+x.a.toUpperCase().padEnd(7,' ')+'  '+x.subj.slice(0,28)); drawTail();
+    const c=document.createElement('div'); c.className='chip2'; const p=pos[i%pos.length]; c.style.left=p[0]+'%'; c.style.top=p[1]+'%'; c.innerHTML='<b>'+esc(x.subj)+'</b><span class="A-'+x.a+'">'+x.a+' · '+esc(x.val||x.reason.slice(0,22))+'</span>'; chips.appendChild(c); if(chips.children.length>4) chips.firstChild.remove(); };
+  stream.slice(0,0); timer=setInterval(step,1400); step();
+}
+function W_label(){ return M.W.label.replace('Week of ','week of '); }
+function flowSVG(){ const n=[['HUBSPOT','read','#2a78d6',70],['RULE CHECK','flag','#e5484d',245],['TASK BUILDER','build','#eda100',420],['EVIDENCE','check','#1baf7a',595],['REPORT','Friday','#8b5cf6',770]];
+  let s='<svg viewBox="0 0 840 230" role="img" aria-label="Agent flow"><defs><filter id="gl"><feGaussianBlur stdDeviation="4"/></filter></defs>';
+  for(let i=0;i<n.length-1;i++){ const a=n[i][3], b=n[i+1][3]; s+='<path id="p'+i+'" d="M'+(a+32)+' 150 C '+(a+90)+' 110, '+(b-90)+' 190, '+(b-32)+' 150" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 5"/>';
+    s+='<circle r="3.5" fill="'+n[i+1][2]+'"><animateMotion dur="'+(2.2+i*0.3)+'s" repeatCount="indefinite"><mpath href="#p'+i+'"/></animateMotion></circle>'; }
+  n.forEach((x,i)=>{ s+='<circle cx="'+x[3]+'" cy="150" r="30" fill="'+x[2]+'" opacity=".18" filter="url(#gl)"><animate attributeName="r" values="28;36;28" dur="'+(2+i*.4)+'s" repeatCount="indefinite"/></circle><circle cx="'+x[3]+'" cy="150" r="24" fill="var(--bg)" stroke="'+x[2]+'" stroke-width="3"/><circle cx="'+x[3]+'" cy="150" r="9" fill="'+x[2]+'"/><text x="'+x[3]+'" y="200" text-anchor="middle" style="font:700 10.5px var(--mono);fill:var(--ink);letter-spacing:.08em">'+x[0]+'</text><text x="'+x[3]+'" y="214" text-anchor="middle" style="font:10px var(--mono);fill:var(--mut)">'+x[1]+'</text>'; });
+  return s+'</svg>'; }
+sel.onchange=()=>{who=sel.value; render();};
+document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('mca.theme',t)}catch(e){}render();};
+render();
+})();
+</script></body></html>
