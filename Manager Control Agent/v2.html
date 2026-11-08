@@ -50,7 +50,7 @@
  <div class="topbar"><span class="kick mono" id="title">// dashboard</span><span class="status grey" id="snap"></span><span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="small muted">View as</span><div class="pills" id="roles"><button data-r="sue" class="on">Sue · super control</button><button data-r="lead">Team Lead</button><button data-r="john">John</button><button data-r="rep">Rep</button></div><select id="rep"></select><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button><a class="btn ghost" href="v1.html" style="text-decoration:none" title="Sue's three priorities on one screen">Simple view · V1</a><a class="btn ghost" href="dashboard.html" style="text-decoration:none">Dashboard</a><button class="btn ghost" id="reset" title="Clear everything Sue entered in this browser and reload the demo week">Reset demo</button></span></div>
  <main id="app"></main>
 </div></div>
-<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script><script src="app/orbit.js"></script><script src="app/ops.js"></script>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script><script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/shared.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script><script src="app/orbit.js"></script><script src="app/ops.js"></script>
 <script>
 (function(){
 const M=window.MCA,E=window.ENG,CH=window.CH,app=document.getElementById('app'); if(!M){app.textContent='No data file found.';return;}
@@ -327,5 +327,6 @@ sel.onchange=()=>{repId=sel.value;personId=null;render();};
 document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('mca.theme',t);CH.setTheme(t);render();};
 document.getElementById('reset').onclick=()=>{ if(confirm('Clear everything entered in this browser and reload the demo week?')){ E.resetAll(); ['ack','init','focus','demos'].forEach(k=>localStorage.removeItem('mca.'+k)); location.reload(); } };
 setRole(); render();
+window.__mcaRerender=()=>render();
 })();
 </script></body></html>

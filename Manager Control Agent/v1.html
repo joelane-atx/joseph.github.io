@@ -64,7 +64,7 @@ body{overflow-x:hidden}
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-label="Person detail"></aside>
 <script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script>
-<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script>
+<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/shared.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script>
 <script>
 (function(){
 const M=window.MCA,E=window.ENG,CH=window.CH,D=M.D,esc=M.esc,chf=M.chf,fmtD=M.fmtD;
@@ -187,5 +187,6 @@ sel.onchange=()=>{as=sel.value; tab='accounts'; drawPills(); refresh();};
 document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark'; document.documentElement.dataset.theme=t; try{localStorage.setItem('mca.theme',t)}catch(e){} CH.setTheme(t); refresh();};
 refresh();
 const goHash=()=>{const hp=(location.hash||'').match(/^#p-(\d+)$/); if(hp&&REPS.some(r=>r.id===hp[1])){ as='sue'; sel.value='sue'; tab='accounts'; refresh(); openP(hp[1]); }}; goHash(); window.addEventListener('hashchange',goHash);
+window.__mcaRerender=()=>refresh();
 })();
 </script></body></html>

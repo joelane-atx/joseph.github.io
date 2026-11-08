@@ -61,7 +61,7 @@
  <div id="app"></div>
 </div>
 <script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script>
-<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script>
+<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/shared.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script>
 <script>
 (function(){
 const M=window.MCA,E=window.ENG,D=M.D,esc=M.esc,chf=M.chf,fmtD=M.fmtD,sum=a=>a.reduce((x,y)=>x+(y||0),0),first=n=>n.split(' ')[0];
@@ -135,5 +135,6 @@ function flowSVG(){ const n=[['HUBSPOT','read','#2a78d6',70],['RULE CHECK','flag
 sel.onchange=()=>{who=sel.value; render();};
 document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('mca.theme',t)}catch(e){}render();};
 render();
+window.__mcaRerender=()=>render();
 })();
 </script></body></html>
