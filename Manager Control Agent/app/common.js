@@ -15,6 +15,9 @@ window.MCA = (function(){
   const repById = Object.fromEntries(D.reps.map(r=>[r.id,r]));
   const cap = r => r.team==='BDM'?20:10;
   const cnt = (obj,k) => (obj&&obj[k])||{n:0,amt:0};
+  // Open a record in HubSpot (portal 6564114). type: 'deal' | 'company'
+  const hs = (type,id) => id? 'https://app.hubspot.com/contacts/6564114/record/'+({deal:'0-3',company:'0-2'}[type]||'0-2')+'/'+id : '';
+  const hsa = (type,id,label) => id? '<a class="hsl" href="'+hs(type,id)+'" target="_blank" rel="noopener" title="Open in HubSpot">'+esc(label)+' <span class="hsi">↗</span></a>' : esc(label);
   const isDemo = m => /demo/i.test(m.type||'') || /demo/i.test(m.title||'');
   const settings = Object.assign({callsTarget:10, emailsTarget:40, prospectsTarget:2, staleDays:30}, JSON.parse(localStorage.getItem('mca.settings')||'{}'));
   const saveSettings = s => { Object.assign(settings,s); localStorage.setItem('mca.settings',JSON.stringify(settings)); };
@@ -77,5 +80,5 @@ window.MCA = (function(){
     }
     return {value:v,target:t,label,state,note};
   }
-  return { D, today, W, LW, toDate, daysAgo, inRange, chf, fmtD, esc, by, sum, pl, pct, repById, cap, cnt, isDemo, settings, saveSettings, priority, accountsOf, tierRank, meetings, meetingGaps, tasks, taskSplit, repSummary, score, inits: window.MCA_INITIATIVES||[] };
+  return { hs, hsa, D, today, W, LW, toDate, daysAgo, inRange, chf, fmtD, esc, by, sum, pl, pct, repById, cap, cnt, isDemo, settings, saveSettings, priority, accountsOf, tierRank, meetings, meetingGaps, tasks, taskSplit, repSummary, score, inits: window.MCA_INITIATIVES||[] };
 })();

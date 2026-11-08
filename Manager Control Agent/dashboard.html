@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Dashboard</title>
+<script>(function(){var t;try{t=localStorage.getItem("mca.theme")}catch(e){}document.documentElement.dataset.theme=t||"dark";})();</script>
+<link rel="stylesheet" href="app/future.css">
+<style>
+/* Sales dashboard: KPI strip, then charts in a 12 column grid, every mark clickable */
+body{overflow-x:hidden}.db{max-width:1560px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 30px max(16px,env(safe-area-inset-left,0px))}
+.bar0{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.bar0 h1{margin:0;font-size:22px}.bar0 h1 span{color:var(--cy)}.bar0 .sp{flex:1}
+.bar0 select{max-width:100%;font:inherit;font-size:12.5px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:6px 8px}
+.tp{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.tp button{font:inherit;font-size:12px;padding:5px 10px;background:transparent;color:var(--mut);border:0;cursor:pointer}.tp button.on{background:rgba(34,229,255,.14);color:var(--cy)}
+.kpis{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;margin-bottom:12px}@media(max-width:1300px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:2px;min-width:0;position:relative;overflow:hidden}
+.kpi .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}.kpi .v{font-size:22px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}.kpi .s{font-size:11.5px;color:var(--mut)}
+.kpi .viz{position:absolute;right:8px;bottom:8px;opacity:.95}.kpi .l{padding-right:4px}.kpi .s{padding-right:70px}.kpi .d{font-size:11.5px;font-weight:700}.up{color:var(--gr)}.dn{color:var(--rd)}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media(max-width:1100px){.c3,.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+.pn{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.pn h3{margin:0 0 10px;font-size:13.5px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.pn h3 .n{color:var(--mut);font-weight:400;font-size:11.5px}
+.br{display:grid;grid-template-columns:130px minmax(0,1fr) 78px;gap:8px;align-items:center;font-size:12px;padding:3px 0;cursor:pointer}.br:hover .nm{color:var(--cy)}.br .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.br .tr{height:12px;border-radius:3px;background:rgba(128,140,160,.12);display:flex;overflow:hidden}.br .tr i{display:block;height:100%}.br b{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.lgd{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-top:6px}.lgd i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.hm{display:grid;gap:2px;font-size:10.5px}.hm .hl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px;color:var(--mut);cursor:pointer}.hm .hl:hover{color:var(--cy)}.hm .hc{height:18px;border-radius:3px}.hm .hh{color:var(--mut);text-align:center}
+.tb{width:100%;border-collapse:collapse;font-size:12.5px}.tb th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line);font-weight:600}.tb td{padding:5px 6px;border-bottom:1px dashed var(--line);vertical-align:top}.tb td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.who{color:var(--mut);cursor:pointer}.who:hover{color:var(--cy)}
+.fc{display:inline-block;font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}.fc.COMMIT{color:var(--gr);border-color:var(--gr)}.fc.BEST_CASE{color:var(--cy);border-color:var(--cy)}.fc.PIPELINE{color:var(--am);border-color:var(--am)}.fc.OMIT{color:var(--mut)}.fc.NONE{color:var(--rd);border-color:var(--rd)}
+.note{font-size:11px;color:var(--mut);margin-top:6px}
+.tblw{overflow-x:auto}.dg{display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:center}@media(max-width:520px){.dg{grid-template-columns:minmax(0,1fr)}.dg svg{max-width:170px;margin:0 auto}}
+</style></head>
+<body>
+<div class="bgfx"><div class="g1"></div><div class="g2"></div><div class="dots"></div></div>
+<div class="db">
+ <div class="bar0"><h1>Sales <span>Dashboard</span></h1><span class="tp" id="team"></span><select id="who" aria-label="Person"></select><span class="sp"></span><span id="refreshSlot"></span><a class="btn ghost" href="v1.html" style="text-decoration:none">V1</a><a class="btn ghost" href="v2.html" style="text-decoration:none">V2</a><a class="btn ghost" href="agent-terminal.html" style="text-decoration:none">Agent</a><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></div>
+ <div id="app"></div>
+ <p class="note">Read only from HubSpot. Click a name to drill into that person; click a deal or company to open it in HubSpot (↗). Forecast uses the HubSpot Forecast category for deals closing this month.</p>
+</div>
+<script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script>
+<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/refresh.js"></script>
+<script>
+(function(){
+const M=window.MCA,E=window.ENG,CH=window.CH,D=M.D,esc=M.esc,chf=M.chf,fmtD=M.fmtD,hsa=M.hsa,sum=a=>a.reduce((x,y)=>x+(y||0),0),first=n=>n.split(' ')[0];
+let team='all', who='all';
+const COL={won:'var(--gr)',commit:'#2a78d6',best:'var(--vi)',pipe:'var(--am)',lost:'var(--rd)',disq:'#8b95a7',calls:'var(--cy)',emails:'var(--vi)'};
+const tp=document.getElementById('team'), sel=document.getElementById('who');
+function pills(){ tp.innerHTML=[['all','All'],['BDM','BDMs'],['SAM','SAMs'],['CSM','CSMs']].map(t=>'<button class="'+(team===t[0]?'on':'')+'" data-t="'+t[0]+'">'+t[1]+'</button>').join(''); tp.querySelectorAll('button').forEach(b=>b.onclick=()=>{team=b.dataset.t; who='all'; pills(); people(); render();}); }
+function people(){ sel.innerHTML='<option value="all">Everyone in view</option>'+D.reps.filter(r=>team==='all'||r.team===team).map(r=>'<option value="'+r.id+'"'+(who===r.id?' selected':'')+'>'+esc(r.name)+'</option>').join(''); }
+sel.onchange=()=>{who=sel.value; render();};
+const days=(start,n)=>{const out=[]; for(let i=0;i<n;i++){const d=new Date(start+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+i); out.push(d.toISOString().slice(0,10));} return out;};
+const pctS=(a,b)=>b?Math.round(100*a/b):0;
+function render(){
+  const reps=D.reps.filter(r=>(team==='all'||r.team===team)&&(who==='all'||r.id===who)); const ids=new Set(reps.map(r=>r.id));
+  const R=reps.map(r=>{const s=M.repSummary(r); return {r,s,f:E.forecast(s),x:E.rollup(s)};});
+  const by=list=>list.filter(d=>ids.has(d.owner));
+  const won30=by(D.deals.won), lost30=by(D.deals.lost), due=by(D.deals.due), past=by(D.deals.past), meets=by(D.meetings);
+  const open=sum(reps.map(r=>(D.dealCounts.open[r.id]||{}).amt)), openN=sum(reps.map(r=>(D.dealCounts.open[r.id]||{}).n));
+  const dueA=sum(R.map(z=>z.s.due.amt)), dueN=sum(R.map(z=>z.s.due.n)), pastN=sum(R.map(z=>z.s.past.n)), pastA=sum(R.map(z=>z.s.past.amt));
+  const F={fc:sum(R.map(z=>z.f.forecast)),won:sum(R.map(z=>z.f.won)),commit:sum(R.map(z=>z.f.commit)),bestW:sum(R.map(z=>z.f.bestWeighted||0)),w:sum(R.map(z=>z.f.weighted)),nocat:sum(R.map(z=>z.f.noCategory))};
+  const w90=sum(R.map(z=>z.x.won90)), l90=sum(R.map(z=>z.x.lost90)), d90=sum(R.map(z=>z.x.disq90));
+  const d14=days(M.LW.start,14), d30=days((()=>{const d=new Date(D.today+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()-29); return d.toISOString().slice(0,10);})(),30);
+  const mDay=d14.map(d=>meets.filter(m=>m.start.slice(0,10)===d).length), wonDay=d30.map(d=>won30.filter(x=>x.close===d).length);
+  const calls=sum(R.map(z=>z.s.calls.thisWeek)), callsL=sum(R.map(z=>z.s.calls.lastWeek)), em=sum(R.map(z=>z.s.emails.thisWeek)), emL=sum(R.map(z=>z.s.emails.lastWeek));
+  const act=calls+em, actL=callsL+emL, dAct=actL?Math.round(100*(act-actL)/actL):0;
+  const k=(l,v,s,viz,cls)=>'<div class="kpi"><span class="viz">'+(viz||'')+'</span><span class="l">'+l+'</span><span class="v '+(cls||'')+'">'+v+'</span><span class="s">'+s+'</span></div>';
+  let h='<div class="kpis">'
+   +k('Open pipeline',chf(open),openN+' open deals')
+   +k('Due by 31 Dec',chf(dueA),dueN+' deals')
+   +k('Nov forecast',chf(F.fc),chf(F.won)+' won · '+pctS(F.won,F.fc)+'%',CH.ring(F.won,F.fc||1,{r:14,stroke:4,color:'var(--gr)'}),'c')
+   +k('Won, 30 days',won30.length,chf(sum(won30.map(d=>d.amount))),CH.spark(wonDay,{width:70,height:22}))
+   +k('Win rate, 90 days',pctS(w90,w90+l90)+'%',w90+' won · '+l90+' lost',CH.ring(w90,(w90+l90)||1,{r:14,stroke:4,color:'var(--cy)'}))
+   +k('Meetings this week',sum(R.map(z=>z.s.ms.length)),sum(R.map(z=>z.s.g.noType.length))+' with no type',CH.spark(mDay,{width:70,height:22}))
+   +k('Calls + emails',act,'<span class="d '+(dAct>=0?'up':'dn')+'">'+(dAct>=0?'▲ ':'▼ ')+Math.abs(dAct)+'%</span> vs last week')
+   +k('Past close date',pastN,chf(pastA),'','r')+'</div>';
+  // forecast stacked by person
+  const fr=R.slice().sort((a,b)=>b.f.forecast-a.f.forecast).filter(z=>z.f.forecast>0||z.f.inMonthN), fmax=Math.max(1,...fr.map(z=>z.f.won+z.f.commit+(z.f.bestWeighted||0)+z.f.weighted));
+  const seg=(v,c,t)=>v>0?'<i style="width:'+(100*v/fmax)+'%;background:'+c+'" title="'+esc(t+': '+chf(v))+'"></i>':'';
+  h+='<div class="g12"><div class="pn c7"><h3>November forecast by person <span class="n">won · Commit · weighted Best case · weighted pipeline, from HubSpot</span></h3>'+fr.map(z=>'<div class="br" data-p="'+z.r.id+'"><span class="nm">'+esc(z.r.name)+'</span><span class="tr">'+seg(z.f.won,COL.won,'won')+seg(z.f.commit,COL.commit,'Commit')+seg(z.f.bestWeighted||0,COL.best,'Best case, weighted')+seg(z.f.weighted,COL.pipe,'pipeline, weighted')+'</span><b>'+chf(z.f.forecast)+'</b></div>').join('')+'<div class="lgd"><span><i style="background:'+COL.won+'"></i>won '+chf(F.won)+'</span><span><i style="background:'+COL.commit+'"></i>Commit '+chf(F.commit)+'</span><span><i style="background:'+COL.best+'"></i>Best case '+chf(F.bestW)+'</span><span><i style="background:'+COL.pipe+'"></i>pipeline '+chf(F.w)+'</span><span class="dn">'+F.nocat+' deals with no category</span></div></div>';
+  // forecast category donut (count of deals closing in Nov)
+  const cat=k=>sum(R.map(z=>((z.s.fc||{})[k]||{}).n)), catA=k=>sum(R.map(z=>((z.s.fc||{})[k]||{}).amt));
+  const cats=[['COMMIT','Commit','#2a78d6'],['BEST_CASE','Best case','var(--vi)'],['PIPELINE','Pipeline','var(--am)'],['NONE','No category','var(--rd)'],['OMIT','Not forecasted','#8b95a7']];
+  h+='<div class="pn c5"><h3>Deals closing in November <span class="n">by forecast category</span></h3><div class="dg">'+CH.donut(cats.map(c=>({label:c[1],value:cat(c[0]),color:c[2]})),{center:String(sum(cats.map(c=>cat(c[0])))),sub:'deals'})+'<table class="tb"><tbody>'+cats.map(c=>'<tr><td><span class="fc '+c[0]+'">'+c[1]+'</span></td><td class="n">'+cat(c[0])+'</td><td class="n">'+chf(catA(c[0]))+'</td></tr>').join('')+'</tbody></table></div><div class="note">Target in Sue\'s brief: every deal closing this month has a category.</div></div>';
+  // won vs lost by week
+  const wk=days(d30[0],35).filter((d,i)=>i%7===0).slice(0,5); const inWk=(list,w)=>{const e=new Date(w+'T00:00:00Z'); e.setUTCDate(e.getUTCDate()+6); const end=e.toISOString().slice(0,10); return list.filter(d=>d.close>=w&&d.close<=end);};
+  h+='<div class="pn c6"><h3>Won and lost by week <span class="n">last 30 days, count</span></h3>'+CH.columns(wk.map(w=>fmtD(w).replace(/^\w+ /,'')),[{label:'won',color:'#1baf7a',values:wk.map(w=>inWk(won30,w).length)},{label:'lost',color:'#e5484d',values:wk.map(w=>inWk(lost30,w).length)}],{height:190,labels:true})+'<div class="lgd"><span><i style="background:#1baf7a"></i>won '+won30.length+' · '+chf(sum(won30.map(d=>d.amount)))+'</span><span><i style="background:#e5484d"></i>lost '+lost30.length+' · '+chf(sum(lost30.map(d=>d.amount)))+'</span></div></div>';
+  // closing by week next 8 weeks (largest deals in the snapshot)
+  const nx=days(D.today,56).filter((d,i)=>i%7===0);
+  h+='<div class="pn c6"><h3>When pipeline lands <span class="n">next 8 weeks, CHF, largest open deals in the snapshot</span></h3>'+CH.columns(nx.map(w=>fmtD(w).replace(/^\w+ /,'')),[{label:'due',color:'#2a78d6',values:nx.map(w=>Math.round(sum(inWk(due,w).map(d=>d.amount||0))))}],{height:190,labels:true})+'</div>';
+  // meetings heatmap person x day
+  const hrows=R.filter(z=>z.s.ms.length+z.s.lm.length).sort((a,b)=>(b.s.ms.length+b.s.lm.length)-(a.s.ms.length+a.s.lm.length)); const mx=Math.max(1,...hrows.flatMap(z=>d14.map(d=>z.s.ms.concat(z.s.lm).filter(m=>m.start.slice(0,10)===d).length)));
+  h+='<div class="pn c7"><h3>Meetings heatmap <span class="n">person × day, last two weeks · darker = more</span></h3><div class="tblw"><div class="hm" style="grid-template-columns:130px repeat(14,minmax(22px,1fr))"><span></span>'+d14.map(d=>'<span class="hh">'+fmtD(d).slice(0,2)+'<br>'+d.slice(8)+'</span>').join('')+hrows.map(z=>'<span class="hl" data-p="'+z.r.id+'">'+esc(z.r.name)+'</span>'+d14.map(d=>{const ms=z.s.ms.concat(z.s.lm).filter(m=>m.start.slice(0,10)===d); const nt=ms.filter(m=>!m.type).length; const a=ms.length/mx; return '<span class="hc" style="background:'+(ms.length?'rgba(34,229,255,'+(0.18+0.75*a)+')':'rgba(128,140,160,.08)')+';'+(nt?'box-shadow:inset 0 -3px 0 var(--rd)':'')+'" title="'+esc(z.r.name+', '+fmtD(d)+': '+ms.length+' meetings'+(nt?', '+nt+' with no type':''))+'"></span>';}).join('')).join('')+'</div></div><div class="lgd"><span><i style="background:rgba(34,229,255,.8)"></i>meetings</span><span><i style="background:var(--rd)"></i>red edge: a meeting with no type</span></div></div>';
+  // meeting types donut
+  const ty={}; meets.filter(m=>m.start.slice(0,10)>=d14[0]).forEach(m=>{const k=!m.type?'No type':M.isDemo(m)?'Demo':m.type; ty[k]=(ty[k]||0)+1;}); const tyc={'No type':'#e5484d','Discovery':'#2a78d6','Demo':'#8b5cf6','Prospecting':'#eda100','Qualify':'#1baf7a'};
+  const tl=Object.entries(ty).sort((a,b)=>b[1]-a[1]);
+  h+='<div class="pn c5"><h3>Meetings by type <span class="n">last two weeks</span></h3><div class="dg">'+CH.donut(tl.map(([k,v])=>({label:k,value:v,color:tyc[k]||'#8b95a7'})),{center:String(sum(tl.map(t=>t[1]))),sub:'meetings'})+'<div>'+tl.map(([k,v])=>'<div class="br" style="grid-template-columns:110px 1fr 40px;cursor:default"><span class="nm">'+esc(k)+'</span><span class="tr"><i style="width:'+pctS(v,tl[0][1])+'%;background:'+(tyc[k]||'#8b95a7')+'"></i></span><b>'+v+'</b></div>').join('')+'</div></div></div>';
+  // win loss disq 90d stacked per person
+  const wr=R.filter(z=>z.x.won90+z.x.lost90+z.x.disq90).sort((a,b)=>b.x.winRate90-a.x.winRate90); const wmax=Math.max(1,...wr.map(z=>z.x.won90+z.x.lost90+z.x.disq90));
+  h+='<div class="pn c7"><h3>Won, lost, disqualified <span class="n">last 90 days per person · sorted by win rate</span></h3>'+wr.map(z=>{const t=z.x.won90+z.x.lost90+z.x.disq90; return '<div class="br" data-p="'+z.r.id+'" style="grid-template-columns:130px minmax(0,1fr) 92px"><span class="nm">'+esc(z.r.name)+'</span><span class="tr">'+(z.x.won90?'<i style="width:'+(100*z.x.won90/wmax)+'%;background:'+COL.won+'" title="won '+z.x.won90+'"></i>':'')+(z.x.lost90?'<i style="width:'+(100*z.x.lost90/wmax)+'%;background:'+COL.lost+'" title="lost '+z.x.lost90+'"></i>':'')+(z.x.disq90?'<i style="width:'+(100*z.x.disq90/wmax)+'%;background:'+COL.disq+'" title="disqualified '+z.x.disq90+'"></i>':'')+'</span><b class="'+(z.x.winRate90>=50?'up':z.x.winRate90<30?'dn':'')+'">'+z.x.winRate90+'% win</b></div>';}).join('')+'<div class="lgd"><span><i style="background:'+COL.won+'"></i>won '+w90+'</span><span><i style="background:'+COL.lost+'"></i>lost '+l90+'</span><span><i style="background:'+COL.disq+'"></i>disqualified '+d90+'</span></div></div>';
+  // lost reasons + competitors
+  const rs={}; lost30.forEach(d=>{const k=(d.lostReason||'No reason').trim(); rs[k]=(rs[k]||0)+1;}); const rl=Object.entries(rs).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const comp={}; lost30.forEach(d=>{const c=(d.competitor||'').trim(); if(c&&c.length<=24&&c.split(/\s+/).length<=3&&!/^(na|n\/a|none|unknown|not disclosed|other|no)$/i.test(c)){const k=c.toLowerCase().replace(/^\w/,x=>x.toUpperCase()); comp[k]=(comp[k]||0)+1;}});
+  h+='<div class="pn c5"><h3>Why we lose <span class="n">last 30 days, '+lost30.length+' deals</span></h3>'+rl.map(([k,v])=>'<div class="br" style="grid-template-columns:170px 1fr 30px;cursor:default"><span class="nm" title="'+esc(k)+'">'+esc(k)+'</span><span class="tr"><i style="width:'+pctS(v,rl[0][1])+'%;background:'+(k==='No reason'?'var(--rd)':'#8b5cf6')+'"></i></span><b>'+v+'</b></div>').join('')+(Object.keys(comp).length?'<div class="note">Competitors named: '+Object.entries(comp).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v])=>esc(k)+' '+v).join(' · ')+'</div>':'')+'</div>';
+  // activity per person
+  const ar=R.slice().sort((a,b)=>(b.s.calls.thisWeek+b.s.emails.thisWeek)-(a.s.calls.thisWeek+a.s.emails.thisWeek)); const amax=Math.max(1,...ar.map(z=>Math.max(z.s.calls.thisWeek+z.s.emails.thisWeek,z.s.calls.lastWeek+z.s.emails.lastWeek)));
+  h+='<div class="pn c6"><h3>Activity this week <span class="n">calls and emails logged · faint bar = last week</span></h3>'+ar.map(z=>{const t=z.s.calls.thisWeek+z.s.emails.thisWeek, l=z.s.calls.lastWeek+z.s.emails.lastWeek; return '<div class="br" data-p="'+z.r.id+'"><span class="nm">'+esc(z.r.name)+'</span><span style="display:flex;flex-direction:column;gap:2px"><span class="tr" style="height:9px">'+(z.s.calls.thisWeek?'<i style="width:'+(100*z.s.calls.thisWeek/amax)+'%;background:'+COL.calls+'"></i>':'')+'<i style="width:'+(100*z.s.emails.thisWeek/amax)+'%;background:'+COL.emails+'"></i></span><span class="tr" style="height:3px"><i style="width:'+(100*l/amax)+'%;background:var(--mut);opacity:.5"></i></span></span><b>'+t+' <span class="'+(t>=l?'up':'dn')+'" style="font-size:10.5px">'+(t>=l?'▲':'▼')+'</span></b></div>';}).join('')+'<div class="lgd"><span><i style="background:'+COL.calls+'"></i>calls '+calls+'</span><span><i style="background:'+COL.emails+'"></i>emails '+em+'</span></div></div>';
+  // pipeline health per person
+  const pr=R.filter(z=>z.s.past.n+z.s.stale.n).sort((a,b)=>b.s.past.n-a.s.past.n); const pmax=Math.max(1,...pr.map(z=>z.s.past.n+z.s.stale.n));
+  h+='<div class="pn c6"><h3>Pipeline hygiene <span class="n">deals past close date and stale (no activity in 30 days)</span></h3>'+pr.map(z=>'<div class="br" data-p="'+z.r.id+'"><span class="nm">'+esc(z.r.name)+'</span><span class="tr">'+(z.s.past.n?'<i style="width:'+(100*z.s.past.n/pmax)+'%;background:var(--rd)" title="past close date '+z.s.past.n+'"></i>':'')+(z.s.stale.n?'<i style="width:'+(100*z.s.stale.n/pmax)+'%;background:var(--am)" title="stale '+z.s.stale.n+'"></i>':'')+'</span><b>'+z.s.past.n+' · '+z.s.stale.n+'</b></div>').join('')+'<div class="lgd"><span><i style="background:var(--rd)"></i>past close date '+pastN+'</span><span><i style="background:var(--am)"></i>stale '+sum(R.map(z=>z.s.stale.n))+'</span></div></div>';
+  // tables
+  const nm=id=>{const r=M.repById[id]; return r?'<span class="who" data-p="'+id+'">'+esc(first(r.name))+'</span>':'';};
+  const topDue=due.slice().sort((a,b)=>(b.amount||0)-(a.amount||0)).slice(0,10);
+  h+='<div class="pn c6"><h3>Biggest deals due by 31 Dec <span class="n">click to open in HubSpot</span></h3><div class="tblw"><table class="tb"><thead><tr><th>Deal</th><th>Owner</th><th>Stage</th><th>Category</th><th>Close</th><th class="n">CHF</th></tr></thead><tbody>'+topDue.map(d=>'<tr><td>'+hsa('deal',d.id,(d.name||'').split('|').slice(0,2).join('|').slice(0,52))+'</td><td>'+nm(d.owner)+'</td><td class="small">'+esc(d.stage)+'</td><td><span class="fc '+(d.forecast||'NONE')+'">'+esc({COMMIT:'Commit',BEST_CASE:'Best case',PIPELINE:'Pipeline',OMIT:'Not forecasted'}[d.forecast]||'none')+'</span></td><td class="n">'+fmtD(d.close)+'</td><td class="n">'+chf(d.amount)+'</td></tr>').join('')+'</tbody></table></div></div>';
+  const topPast=past.slice().sort((a,b)=>(b.amount||0)-(a.amount||0)).slice(0,10);
+  h+='<div class="pn c6"><h3>Biggest deals past their close date <span class="n">to fix this week</span></h3><div class="tblw"><table class="tb"><thead><tr><th>Deal</th><th>Owner</th><th>Stage</th><th>Was due</th><th>Last activity</th><th class="n">CHF</th></tr></thead><tbody>'+topPast.map(d=>'<tr><td>'+hsa('deal',d.id,(d.name||'').split('|').slice(0,2).join('|').slice(0,52))+'</td><td>'+nm(d.owner)+'</td><td class="small">'+esc(d.stage)+'</td><td class="n dn">'+fmtD(d.close)+'</td><td class="n">'+(d.lastActivity?fmtD(d.lastActivity):'none')+'</td><td class="n">'+chf(d.amount)+'</td></tr>').join('')+'</tbody></table></div></div>';
+  const accs=R.flatMap(z=>z.s.pa.slice(0,M.cap(z.r)).concat(z.s.prospects).map(a=>({a,z}))).filter(o=>o.a.status==='needswork'&&!o.a.workedThisWeek); const seen=new Set(); const accL=accs.filter(o=>!seen.has(o.a.id)&&seen.add(o.a.id)).sort((p,q)=>(q.a.revenue||0)-(p.a.revenue||0)).slice(0,12);
+  h+='<div class="pn c12"><h3>Priority accounts and prospects needing work <span class="n">no open deal, no activity in 30 days, not worked this week · biggest first</span></h3><div class="tblw"><table class="tb"><thead><tr><th>Account</th><th>Owner</th><th>List</th><th>Country</th><th>Last activity</th><th class="n">Lifetime CHF</th></tr></thead><tbody>'+accL.map(o=>'<tr><td>'+hsa('company',o.a.id,o.a.name)+'</td><td>'+nm(o.a.owner)+'</td><td class="small">'+(o.a.isProspect?'Strategic prospect':o.a.isJohn?'John Top 25':'Priority (Target Account)')+'</td><td class="small">'+esc(o.a.country||'')+'</td><td class="n">'+(o.a.lastActivity?fmtD(o.a.lastActivity):'never')+'</td><td class="n">'+(o.a.revenue?chf(o.a.revenue):'–')+'</td></tr>').join('')+'</tbody></table></div></div></div>';
+  const app=document.getElementById('app'); app.innerHTML=h; app.querySelectorAll('svg').forEach(CH.hover);
+  app.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>{location.href='v1.html#p-'+e.dataset.p;});
+}
+document.getElementById('theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;try{localStorage.setItem('mca.theme',t)}catch(e){} CH.setTheme(t); render();};
+pills(); people(); render();
+})();
+</script></body></html>

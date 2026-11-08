@@ -57,11 +57,11 @@
 <body>
 <div class="bgfx"><div class="dots"></div></div>
 <div class="at">
- <div class="chrome"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="sp">Sales Agent Terminal · weekly cycle · seven agents · log first</span><span class="ctl"><select id="who" aria-label="Agent for"></select><a class="btn ghost" href="v1.html" style="text-decoration:none">V1</a><a class="btn ghost" href="v2.html" style="text-decoration:none">V2</a><span class="mode">read only · nothing sent</span><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></span></div>
+ <div class="chrome"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="sp">Sales Agent Terminal · weekly cycle · seven agents · log first</span><span class="ctl"><select id="who" aria-label="Agent for"></select><a class="btn ghost" href="dashboard.html" style="text-decoration:none">Dashboard</a><a class="btn ghost" href="v1.html" style="text-decoration:none">V1</a><a class="btn ghost" href="v2.html" style="text-decoration:none">V2</a><span class="mode">read only · nothing sent</span><button class="theme-btn" id="theme" title="Light or dark">☀ / ☾</button></span></div>
  <div id="app"></div>
 </div>
 <script src="data/live.js"></script><script src="data/sample.js"></script><script src="data/initiatives.js"></script>
-<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script>
+<script src="app/common.js"></script><script src="app/charts.js"></script><script src="app/engine.js"></script><script src="app/flags.js"></script><script src="app/refresh.js"></script>
 <script>
 (function(){
 const M=window.MCA,E=window.ENG,D=M.D,esc=M.esc,chf=M.chf,fmtD=M.fmtD,sum=a=>a.reduce((x,y)=>x+(y||0),0),first=n=>n.split(' ')[0];
