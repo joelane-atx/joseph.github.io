@@ -34,6 +34,7 @@
 .v2t{font:inherit;font-size:12px;text-align:left;padding:6px 9px 5px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:150px;max-width:240px}.v2t.on{border-color:var(--cy);background:rgba(34,229,255,.1);color:var(--cy)}
 .sel-st{font:inherit;font-size:11.5px;cursor:pointer;appearance:auto}.sel-bl{font:inherit;font-size:12px;width:100%;min-width:140px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
 .ask{width:100%;font:inherit;font-size:12.5px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+.sub,.need,#app p.small.muted,.nav a[data-v=questions],.nav a[data-v=rollout],#reset{display:none!important} /* sue-clean */
 </style></head>
 <body data-chart-theme="dark">
 <div class="bgfx"><div class="g1"></div><div class="g2"></div><div class="dots"></div><div class="scan"></div></div>
@@ -41,7 +42,7 @@
 <aside class="nav">
  <div class="logo">Sales <span>Control</span><div class="mono" style="font-size:10px;color:var(--mut2);font-weight:400;letter-spacing:.1em;margin-top:2px">// sue.runs_the_org --version=2 --data=hubspot_live</div></div>
  <div class="sec">Run the week</div><a data-v="dashboard" class="on"><i></i>Dashboard</a><a data-v="tasks"><i></i>Tasks</a><a data-v="people"><i></i>People and KPIs</a><a data-v="messages"><i></i>Messages (Teams)</a><a data-v="feedback"><i></i>Feedback</a><a data-v="friday"><i></i>Friday report</a>
- <div class="sec">V2 · new</div><a data-v="flags"><i></i>Account flags</a><a data-v="board"><i></i>Initiative board</a><a data-v="setup"><i></i>Tool setup</a>
+ <div class="sec">Accounts and team</div><a data-v="flags"><i></i>Account flags</a><a data-v="board"><i></i>Initiative board</a><a data-v="setup"><i></i>Tool setup</a>
  <div class="sec">Run the month</div><a data-v="forecast"><i></i>Forecast</a><a data-v="winloss"><i></i>Win, loss, disqualified</a><a data-v="initiatives"><i></i>Department initiatives</a><a data-v="announce"><i></i>Announcements</a><a data-v="coaching"><i></i>Coaching cockpit</a><a data-v="audits"><i></i>HubSpot audits</a><a data-v="invoices"><i></i>Overdue invoices</a>
  <div class="sec">Set up</div><a data-v="directives"><i></i>Sue's rules</a><a data-v="success"><i></i>Success measures</a><a data-v="questions"><i></i>Open questions</a><a data-v="rollout"><i></i>Rollout plan</a>
  <div class="foot">Reads HubSpot only.<br>Nothing is sent from this page.<br>Sue's entries stay in this browser.</div>
