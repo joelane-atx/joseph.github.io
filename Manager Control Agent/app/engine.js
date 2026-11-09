@@ -21,12 +21,14 @@ window.ENG = (function(){
   const directives=()=>{ const saved=store('directives',{}); return SEED.map(x=>Object.assign({},x,saved[x.id]||{})); };
   const saveDirective=(id,patch)=>{ const s=store('directives',{}); s[id]=Object.assign(s[id]||{},patch); put('directives',s); };
   const wsById=()=>Object.fromEntries(directives().map(w=>[w.id,w]));
-  const day = n => { const d=M.toDate(M.W.start); d.setUTCDate(d.getUTCDate()+n); return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}); };
+  // Tasks are planned for the current week. When the HubSpot snapshot covers last week, the plan week is this week.
+  const PLAN = (()=>{ const now=new Date(); const t=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())); const dow=(t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-dow); const mon=t.toISOString().slice(0,10); return mon>M.W.end? mon : M.W.start; })();
+  const day = n => { const d=M.toDate(PLAN); d.setUTCDate(d.getUTCDate()+n); return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}); };
   const DUE = {Mon:day(0),Tue:day(1),Wed:day(2),Thu:day(3),Fri:day(4)};
   const short = s => s.length>70? s.slice(0,68)+'…' : s;
   // ---- Sue's tasks (the real list) ----
   const tasks=()=>store('suetasks',[]); const saveTasks=a=>put('suetasks',a);
-  const addTask=t=>{const a=tasks();const n=Object.assign({id:'t'+Date.now()+Math.random().toString(36).slice(2,6),status:'open',created:M.today,setBy:'Sue',ws:'other',notes:[]},t);a.push(n);saveTasks(a);return n;};
+  const addTask=t=>{const a=tasks();const n=Object.assign({id:'t'+Date.now()+Math.random().toString(36).slice(2,6),status:'open',created:M.today,week:PLAN,setBy:'Sue',ws:'other',notes:[]},t);a.push(n);saveTasks(a);return n;};
   const updateTask=(id,patch)=>{const a=tasks();const i=a.findIndex(t=>t.id===id);if(i>=0){Object.assign(a[i],patch);saveTasks(a);}};
   const deleteTask=id=>saveTasks(tasks().filter(t=>t.id!==id));
   const addNote=(id,from,text)=>{const a=tasks();const t=a.find(t=>t.id===id);if(t){t.notes=t.notes||[];t.notes.push({from,text,at:M.today});saveTasks(a);}};
@@ -70,7 +72,7 @@ window.ENG = (function(){
     }
   }
   // ---- the list for one rep: Sue's tasks with status and evidence ----
-  function listFor(s){ const mine=tasks().filter(t=>t.rep===s.r.id).map(t=>{const e=evidence(s,t); const state=t.status==='open'&&e.ok?'done':t.status; return Object.assign({},t,{ev:e,state});});
+  function listFor(s){ const mine=tasks().filter(t=>t.rep===s.r.id).map(t=>{const e=(t.week&&t.week>M.W.end)?{ok:false,text:'HubSpot check on Friday'}:evidence(s,t); const state=t.status==='open'&&e.ok?'done':t.status; return Object.assign({},t,{ev:e,state});});
     mine.sort((a,b)=>({open:0,blocked:1,missed:2,carried:3,done:4}[a.state]-{open:0,blocked:1,missed:2,carried:3,done:4}[b.state])||(a.prio||5)-(b.prio||5));
     mine.forEach((x,i)=>x.rank=i+1);
     return {list:mine, confirmed:mine.filter(x=>x.state==='done').length, open:mine.filter(x=>x.state==='open').length, blocked:mine.filter(x=>x.state==='blocked').length, missed:mine.filter(x=>x.state==='missed').length, suggestions:suggest(s), lapsed:(s.acc||s.pa).filter(a=>(a.revenue||0)>=LARGE&&(a.days==null||a.days>LAPSED_DAYS))};
@@ -99,5 +101,5 @@ window.ENG = (function(){
       won:s.won.length, lost:s.lost.length, winRate:M.pct(s.won.length,s.won.length+s.lost.length), won90:(s.c90.won||{n:0}).n, won90Amt:(s.c90.won||{amt:0}).amt, lost90:(s.c90.lost||{n:0}).n, lost90Amt:(s.c90.lost||{amt:0}).amt, disq90:(s.c90.disqualified||{n:0}).n, uncont90:(s.c90.uncontactable||{n:0}).n, winRate90:M.pct((s.c90.won||{n:0}).n,(s.c90.won||{n:0}).n+(s.c90.lost||{n:0}).n), disqShare90:M.pct((s.c90.disqualified||{n:0}).n,['won','lost','disqualified','uncontactable'].reduce((a,k)=>a+((s.c90[k]||{n:0}).n),0)), topReasons:lostR.slice(0,2), demosNoFeedback:s.g.demos.filter(m=>m.start.slice(0,10)<=M.today).length, largeNoSponsor:s.dueList.filter(d=>(d.amount||0)>=LARGE).length, activity:s.calls.thisWeek+s.emails.thisWeek };
   }
   function teamReasons(){ return reasons(D.deals.lost); }
-  return {SEED, directives, saveDirective, wsById, DUE, LARGE, tasks, addTask, updateTask, deleteTask, addNote, dismiss, dismissed, suggest, evidence, listFor, seedOnce, msgs, addMsg, replies, addReply, resetAll, forecast, rollup, lead, reasons, teamReasons};
+  return {PLAN, SEED, directives, saveDirective, wsById, DUE, LARGE, tasks, addTask, updateTask, deleteTask, addNote, dismiss, dismissed, suggest, evidence, listFor, seedOnce, msgs, addMsg, replies, addReply, resetAll, forecast, rollup, lead, reasons, teamReasons};
 })();
