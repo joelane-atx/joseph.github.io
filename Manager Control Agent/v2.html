@@ -35,6 +35,7 @@
 .sel-st{font:inherit;font-size:11.5px;cursor:pointer;appearance:auto}.sel-bl{font:inherit;font-size:12px;width:100%;min-width:140px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
 .ask{width:100%;font:inherit;font-size:12.5px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
 .sub,.need,#app p.small.muted,.nav a[data-v=questions],.nav a[data-v=rollout],#reset{display:none!important} /* sue-clean */
+.opsgrid.nocloud{display:none!important}
 </style></head>
 <body data-chart-theme="dark">
 <div class="bgfx"><div class="g1"></div><div class="g2"></div><div class="dots"></div><div class="scan"></div></div>
@@ -79,7 +80,7 @@ function dashboard(){ if(role==='rep') return person(repId); const rows=scope();
   const asks=E.msgs().filter(m=>m.status==='queued').length, reps=E.replies().length, blocked=rows.flatMap(x=>x.tasks.list.filter(t=>t.state==='blocked'));
   const f={won:sum(rows.map(x=>x.f.won)),forecast:sum(rows.map(x=>x.f.forecast))};
   let h='<h1>Sue\'s <span class="g">sales org</span>, this week</h1><p class="sub">'+M.W.label+' · '+rows.length+' people · your tasks, their activity, confirmed by HubSpot. Gaps first.</p>';
-  h+='<div class="opsgrid"><div class="card" style="padding:0;overflow:hidden"><div class="orbit"><canvas id="orbit"></canvas><div class="ov">Sales org · live graph<b>'+rows.length+' people · '+sum(rows.map(x=>x.s.pa.length))+' priority accounts · '+sum(rows.map(x=>x.s.dueList.length+x.s.pastList.length+x.s.staleList.length))+' deals · '+sum(rows.map(x=>x.s.ms.length+x.s.lm.length))+' meetings</b></div><div class="lg"><span><i style="background:#22e5ff"></i>person</span><span><i style="background:#3dffa2"></i>account buying</span><span><i style="background:#60a5fa"></i>account in touch</span><span><i style="background:#ff4d6d"></i>account needs work · deal past date</span><span><i style="background:#8b5cf6"></i>meeting</span><span><i style="background:#f59e0b"></i>stale deal</span><span class="muted">drag to spin · hover a dot</span></div></div></div>';
+  h+='<div class="opsgrid nocloud">';
   const O=window.OPS, days=[]; for(let i=0;i<14;i++){ const d=new Date(M.LW.start+'T00:00:00'); d.setDate(d.getDate()+i); days.push(d.toISOString().slice(0,10)); }
   const perDay=(arr,key)=>days.map(d=>arr.filter(x=>(x[key]||'').slice(0,10)===d).length);
   const allM=all.flatMap(s=>s.lm.concat(s.ms)), allDue=all.flatMap(s=>s.dueList), ahead=[]; for(let i=0;i<14;i++){ const d=new Date(M.today+'T00:00:00'); d.setDate(d.getDate()+i); ahead.push(d.toISOString().slice(0,10)); }
